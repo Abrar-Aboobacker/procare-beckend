@@ -25,4 +25,15 @@ module.exports = {
         res.status(500).send({ message: "error logginf in ",success:false,error})
     }
   },
+  isAdminAuth: async (req, res) => {
+    try {
+      let admins = await admin.findById(req.id)
+      const adminDetails = {
+        email:admins.email,
+      }
+      res.json({"success":true,"result":adminDetails, "status": "success", "message": "signin success" })
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };

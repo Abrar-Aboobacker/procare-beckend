@@ -30,7 +30,7 @@ const doctorSchema= new mongoose.Schema({
         // required:true,
         default:false
     },
-    About:{
+    about:{
         type:String
     }
 },{

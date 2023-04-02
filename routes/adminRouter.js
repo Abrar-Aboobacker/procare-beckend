@@ -7,5 +7,5 @@ const {
 }= require('../controller/admin-controller')
 
 router.post('/admin_login',adminLogin)
-router.get('/isAdminAuth',auth.adminjwt,isAdminAuth)
+router.get('/isAdminAuth',isAdminAuth)
 module.exports= router

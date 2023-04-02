@@ -3,15 +3,15 @@ const mongoose = require('mongoose')
 const doctorSchema= new mongoose.Schema({
     name:{
         type: String,
-        // required: true
+        required: true
     },
     email:{
         type: String,
-        // required: true
+        required: true
     },
     phone:{
         type: String,
-        // required: true
+        required: true
     },
     file:{
         type: String,
@@ -25,13 +25,41 @@ const doctorSchema= new mongoose.Schema({
         type:String,
         // required:true
     },
+    specialization:{
+        type:String,
+        default:''
+        // required:true
+    },experience:{
+        type:String,
+        default:''
+        // required:true
+    },
+    feesPerCunsaltation:{
+        type:Number,
+        // required:true
+    },
+    timings:{
+        type:Object,
+        default:{}
+        // required:true
+    },
+    status:{
+        type:String,
+        defualt:"pending"
+    },
     isActive:{
         type:Boolean,
-        // required:true,
-        default:false
+        required:true,
+        default:true
     },
     about:{
         type:String
+    },notification:{
+        type:Array,
+        default:[]
+    },seennotification:{
+        type:Array,
+        default:[]
     }
 },{
     timestamps:true

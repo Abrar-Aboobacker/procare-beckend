@@ -1,60 +1,81 @@
 const multer = require("multer");
-const sharp = require("sharp");
 
-const multerStorage = multer.memoryStorage();
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  }else if(file.mimetype === 'application/pdf'){
-    cb(null, true);
-  } else {
-    cb("Please upload valid file type.", false);
-  }
-};
+// const multerStorage = multer.memoryStorage();
 
-const upload = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
-const uploadFiles = upload.array("image", 4);
+// const multerFilter = (req, file, cb) => {
+//   if (file.mimetype.startsWith("image")) {
+//     cb(null, true);
+//   }else if(file.mimetype === 'application/pdf'){
+//     cb(null, true);
+//   } else {
+//     cb("Please upload valid file type.", false);
+//   }
+// };
 
-const uploadImages = (req, res, next) => {
-  uploadFiles(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        return res.send("Too many files to upload.");
-      }
-    } else if (err) {
-      return res.send(err);
+// const upload = multer({
+//   storage: multerStorage,
+//   fileFilter: multerFilter,
+// });
+// const uploadFiles = upload.array("image", 4);
+
+// const uploadImages = (req, res, next) => {
+//   uploadFiles(req, res, (err) => {
+//     if (err instanceof multer.MulterError) {
+//       if (err.code === "LIMIT_UNEXPECTED_FILE") {
+//         return res.send("Too many files to upload.");
+//       }
+//     } else if (err) {
+//       return res.send(err);
+//     }
+
+//     next();
+//   });
+// };
+
+// const resizeImages = async (req, res, next) => {
+//   if (!req.files) return next();
+
+//   req.body.images = [];
+//   await Promise.all(
+//     req.files.map(async (file) => {
+//       const filename = file.originalname.replace(/\..+$/, "");
+//       const newFilename = `${file.fieldname}-${Date.now()}-${Math.random()}.jpeg`;
+
+//       await sharp(file.buffer)
+//         .resize(272, 533)
+//         .toFormat("jpeg")
+//         .jpeg({ quality: 100 })
+//         .toFile(`./public/image/${newFilename}`);
+//       req.body.images.push(newFilename);
+//     })
+//   );
+
+//   next();
+// };
+
+// module.exports = {
+//   uploadImages: uploadImages,
+//   resizeImages: resizeImages,
+// };
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+
+    let uploadPath = '';
+
+    // Check the input field name to set the upload path
+    if (file.fieldname === 'note') {
+      uploadPath = path.join('uploads', 'notes');
+    } else {
+      uploadPath = path.join('uploads', 'question-papers');
     }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.originalname}-${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
 
-    next();
-  });
-};
-
-const resizeImages = async (req, res, next) => {
-  if (!req.files) return next();
-
-  req.body.images = [];
-  await Promise.all(
-    req.files.map(async (file) => {
-      const filename = file.originalname.replace(/\..+$/, "");
-      const newFilename = `${file.fieldname}-${Date.now()}-${Math.random()}.jpeg`;
-
-      await sharp(file.buffer)
-        .resize(272, 533)
-        .toFormat("jpeg")
-        .jpeg({ quality: 100 })
-        .toFile(`./public/image/${newFilename}`);
-      req.body.images.push(newFilename);
-    })
-  );
-
-  next();
-};
-
-module.exports = {
-  uploadImages: uploadImages,
-  resizeImages: resizeImages,
-};
+module.exports.upload = multer({ storage });

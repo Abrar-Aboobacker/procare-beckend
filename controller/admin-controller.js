@@ -1,37 +1,47 @@
 const jwt = require("jsonwebtoken");
 const admin = require("../models/adminModel");
+const bcrypt  = require ('bcryptjs')
 module.exports = {
   adminLogin: async (req, res) => {
     try {
       const adminz = await admin.findOne({ email: req.body.email });
-      console.log(req.body.password+"eeeeee");
+      console.log(adminz);
       if (adminz) {
-        if(req.body.password == adminz.password) {
-            console.log(req.body.password);
-            const token = jwt.sign({id:admin._id},process.env.JWT_SECRET_KEY,{expiresIn: "5d"})
-            res.status(200).send({message:"Login successful",success:true,data:token})
-        }else{
-            return res.status(200).send({ message:"Password is incorrect",success:false})
+        const isMatch = await bcrypt.compare(req.body.password,adminz.password)
+        if (isMatch) {
+          const admintoken = jwt.sign({adminId:adminz._id},process.env.JWT_SECRET_KEY,{expiresIn:"5d"})
+          res.status(200).send({message:"Login successful",success:true,data:admintoken,adminz})
+          
+        } else {
+          return res
+            .status(200)
+            .send({ message: "Password is incorrect", success: false });
         }
-        
-      }else{
+      } else {
         return res
           .status(200)
           .send({ message: "Admin does not exist", success: false });
       }
-    //   const isMatch = await 
+      //   const isMatch = await
     } catch (error) {
-        console.log(error);
-        res.status(500).send({ message: "error logginf in ",success:false,error})
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "error logginf in ", success: false, error });
     }
   },
   isAdminAuth: async (req, res) => {
     try {
-      let admins = await admin.findById(req.id)
+      let admins = await admin.findById(req.id);
       const adminDetails = {
-        email:admins.email,
-      }
-      res.json({"success":true,"result":adminDetails, "status": "success", "message": "signin success" })
+        email: admins.email,
+      };
+      res.json({
+        success: true,
+        result: adminDetails,
+        status: "success",
+        message: "signin success",
+      });
     } catch (error) {
       console.log(error);
     }

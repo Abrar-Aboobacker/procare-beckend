@@ -8,6 +8,13 @@ const adminSchema = new mongoose.Schema({
     password:{
         type: String,
         required: true,
+    },
+    notification:{
+        type:Array,
+        default:[]
+    },seennotification:{
+        type:Array,
+        default:[]
     }
 },{
     timestamps:true

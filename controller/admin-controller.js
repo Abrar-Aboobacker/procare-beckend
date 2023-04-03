@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
-const admin = require("../models/adminModel");
+const Admin = require("../models/adminModel");
 const bcrypt  = require ('bcryptjs')
+const adminInstance = new Admin()
 module.exports = {
   adminLogin: async (req, res) => {
     try {
-      const adminz = await admin.findOne({ email: req.body.email });
-      console.log(adminz);
+      const adminz = await Admin.findOne({ email: req.body.email });
       if (adminz) {
         const isMatch = await bcrypt.compare(req.body.password,adminz.password)
         if (isMatch) {
@@ -30,20 +30,50 @@ module.exports = {
         .send({ message: "error logginf in ", success: false, error });
     }
   },
-  isAdminAuth: async (req, res) => {
+  adminInfo: async (req, res) => {
     try {
-      let admins = await admin.findById(req.id);
-      const adminDetails = {
-        email: admins.email,
-      };
-      res.json({
-        success: true,
-        result: adminDetails,
-        status: "success",
-        message: "signin success",
-      });
+      let adminz = await Admin.findById({_id:req.adminId});
+      // console.log(adminz);
+      adminz.password = undefined
+      adminz.cpassword = undefined
+      if (!adminz){
+        return res.status(200).send({message:"admin does not exist",success:false});
+      }else{
+        // console.log("here");
+        res.status(200).send({success:true,data:adminz})
+      }
     } catch (error) {
       console.log(error);
+      res.status(500).send({message:"something went wrong",success:false,error})
     }
   },
+
+getAllNotification: async (req, res) => {
+  try {
+    const adminz = await Admin.findOne({ _id: req.body.adminId });
+    const seennotification = adminz.seennotification;
+    const notification = adminz.notification;
+    seennotification.push(...notification);
+    adminz.notification = [];
+    adminz.seennotification = notification;
+
+    const updateAdmin = await Admin.updateOne(
+      { _id: req.body.adminId },
+      { $set: { notification: [], seennotification: notification } }
+    );
+
+    res.status(200).send({
+      message: "all notifications marked as read",
+      success: true,
+      data: updateAdmin,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Error in notification",
+      success: false,
+      error,
+    });
+  }
+}
 };

@@ -31,7 +31,7 @@ module.exports = {
             const doctorz = await doctor.findOne({email:req.body.email})
             if(doctorz){
                 const isMatch = await bcrypt.compare(req.body.password,doctorz.password)
-                console.log(req.body);
+                
                 if(isMatch){
                     const token = jwt.sign({doctorId:doctorz._id},process.env.JWT_SECRET_KEY,{expiresIn:"5d"})
                     res.status(200).send({message:"Login successful",success:true,data:token,doctorz})
@@ -74,7 +74,7 @@ module.exports = {
                 data:{
                     doctorId:updateDoctor._id,
                     name:updateDoctor.name,
-                    onclick:'admin/admin_newDoctors'
+                    onClickPath:'admin/admin_newDoctors'
                 }
             })
             await admin.findByIdAndUpdate(adminz._id,{notification})

@@ -37,7 +37,7 @@ const jwt = require("jsonwebtoken");
           console.log(err);
           res
             .status(401)
-            .send({ message: "Doctor Auth Failed", success: false });
+            .send({ message: "admin Auth Failed", success: false });
         } else {
           
           req.adminId = decoded.adminId;

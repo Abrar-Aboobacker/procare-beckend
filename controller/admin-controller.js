@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
+const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcryptjs");
 const adminInstance = new Admin();
 module.exports = {
@@ -48,7 +49,6 @@ module.exports = {
       let adminz = await Admin.findById({ _id: req.adminId });
       // console.log(adminz);
       adminz.password = undefined;
-      adminz.cpassword = undefined;
       if (!adminz) {
         return res
           .status(200)
@@ -111,4 +111,30 @@ module.exports = {
         .send({ message: "Error in notification", success: false, error });
     }
   },
+  getNewDoctors:async(req,res)=>{
+    try {
+      const newDoctor = await Doctor.find({isActive:'pending'})
+      res.status(200).send({
+        message:"New doctor data",
+        success:true,
+        data:newDoctor
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"Error while fetching new doctor",success:false,error})
+    }
+  },
+  getAllDoctors:async (req,res)=>{
+    try {
+      const allDoctors = await Admin.find({})
+      res.status(200).send({
+        message: "doctor data",
+        success: true,
+        data:allDoctors
+      })
+    }catch (error) {
+      console.log(error)
+      res.status(500).send({message:"Error while fetching doctor",success:false,error})
+    }
+  }
 };

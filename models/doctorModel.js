@@ -48,9 +48,9 @@ const doctorSchema= new mongoose.Schema({
         defualt:"pending"
     },
     isActive:{
-        type:Boolean,
+        type:String,
         required:true,
-        default:true
+        default:"pending"
     },
     about:{
         type:String

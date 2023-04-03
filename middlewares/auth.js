@@ -28,7 +28,7 @@ const jwt = require("jsonwebtoken");
 (module.exports.adminjwt = async (req, res, next) => {
   try {
     const admintoken = req.headers["authorization"]?.split(" ")[1];
-    
+    // console.log(req.headers);
     if (!admintoken) {
       res.send({ status: "failed", message: "You need token ok" });
     } else {

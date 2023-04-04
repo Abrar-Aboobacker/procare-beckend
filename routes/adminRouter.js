@@ -8,7 +8,8 @@ const {
     deleteNotification,
     getNewDoctors,
     getAllDoctors,
-    approvingDoctor
+    approvingDoctor,
+    rejectDoctor
 }= require('../controller/admin-controller')
 
 router.post('/admin_login',adminLogin)
@@ -18,4 +19,5 @@ router.post('/deleteNotification',auth.adminjwt,deleteNotification)
 router.get('/getNewDoctors',auth.adminjwt,getNewDoctors)
 router.get('/getAllDoctors',auth.adminjwt,getAllDoctors)
 router.post('/approvingDoctor',auth.adminjwt,approvingDoctor)
+router.post('/rejectDoctor',auth.adminjwt,rejectDoctor)
 module.exports= router

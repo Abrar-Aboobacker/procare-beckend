@@ -141,6 +141,20 @@ module.exports = {
       res.status(500).send({message:"error while approving doctor",success:false,error})
     }
   },
+  rejectDoctor:async(req,res)=>{
+    try {
+      const {doctorId}=req.body
+      const rejectDoctor = await Doctor.findByIdAndRemove(doctorId)
+      res.status(200).send({
+        message: 'Doctor rejected',
+        success: true,
+        data: rejectDoctor
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while reject doctor",success:false,error})
+    }
+  },
   getAllDoctors:async (req,res)=>{
     try {
       const allDoctors = await Admin.find({isActive:'active'})

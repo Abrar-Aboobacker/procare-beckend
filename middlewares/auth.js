@@ -56,8 +56,9 @@ const jwt = require("jsonwebtoken");
 
   (module.exports.doctorjwt = async (req, res, next) => {
     try {
-      const token = req.headers["authorization"]?.split(" ")[1];
       
+      const token = req.headers["authorization"]?.split(" ")[1];
+      console.log(req.headers);
       if (!token) {
         res.send({ status: "failed", message: "You need token ok" });
       } else {

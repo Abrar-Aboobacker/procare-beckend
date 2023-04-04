@@ -48,6 +48,17 @@ module.exports = {
         res.status(500).send({ message: "something went wrong ",success:false,error})
         }
     },
+    doctorStatus:async (req,res)=>{
+        try {
+            
+            const doctorStatus = await doctor.findById({_id:req.doctorId})
+            const IsActive = doctorStatus.isActive
+            res.status(200).send({message:"doctor is acitve",success:true,data:IsActive})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ message: 'Error getting doctor status' });
+        }
+    },
     doctorapply:async(req,res)=>{
         try {
             
@@ -94,6 +105,26 @@ module.exports = {
             }else{
                 res.status(200).send({success:true,data:doctorz})
         }
+        } catch (error) {
+            res.status(500).send({message:"something went wrong",success:false,error})
+        }
+    },
+    doctorProfileEdit:async(req,res)=>{
+        const information = req.body
+        try {
+            const updateDoctor = await doctor.updateOne({_id:req.doctorId},{
+                $set:{
+                    name:information.name,
+                    email:information.email,
+                    phone: information.phone,
+                    about:information.about,
+                    specialization:information.specialization,
+                    experience:information.experience,
+                    feesPerCunsaltation:information.feesPerCunsaltation,
+
+                }
+            })
+            res.status(200).send({success:true, message:"Doctor Profile is edited",data:updateDoctor})
         } catch (error) {
             res.status(500).send({message:"something went wrong",success:false,error})
         }

@@ -124,9 +124,26 @@ module.exports = {
       res.status(500).send({message:"Error while fetching new doctor",success:false,error})
     }
   },
+  approvingDoctor:async(req,res)=>{
+    try {
+      const {doctorId}=req.body
+      console.log(doctorId)
+      const approveDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
+        $set:{isActive:"active"}
+      })
+      res.status(200).send({
+        message: "doctor approved",
+        success: true,
+        data: approveDoctor,
+      });
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while approving doctor",success:false,error})
+    }
+  },
   getAllDoctors:async (req,res)=>{
     try {
-      const allDoctors = await Admin.find({})
+      const allDoctors = await Admin.find({isActive:'active'})
       res.status(200).send({
         message: "doctor data",
         success: true,

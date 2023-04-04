@@ -157,7 +157,7 @@ module.exports = {
   },
   getAllDoctors:async (req,res)=>{
     try {
-      const allDoctors = await Admin.find({isActive:'active'})
+      const allDoctors = await Doctor.find({isActive:'active'})
       res.status(200).send({
         message: "doctor data",
         success: true,

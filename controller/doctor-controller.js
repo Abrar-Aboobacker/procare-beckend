@@ -14,10 +14,6 @@ module.exports = {
             const salt = await bcrypt.genSalt()
             const hashedPassword= await bcrypt.hash(password,salt)
             req.body.password = hashedPassword
-            console.log(req.body + "body");
-            for (const key in req.body) {
-                console.log(key);
-            }
             const newDoctor = new doctor(req.body)
             await newDoctor.save()
             res.status(200).send({message:"Doctor created successfully",success:true})

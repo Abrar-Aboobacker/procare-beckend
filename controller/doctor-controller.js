@@ -2,7 +2,7 @@ const doctor = require('../models/doctorModel')
 const admin = require('../models/adminModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { log } = require('sharp/lib/libvips')
+
 module.exports = {
     doctorSignup: async (req, res) => {
         try {

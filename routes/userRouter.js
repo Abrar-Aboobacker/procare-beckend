@@ -3,7 +3,7 @@ const router = express.Router()
 const {
     userSignup,
     postOtp,
-    userLogin
+    userLogin,
 }=require('../controller/user-controller')
 
 router.post('/signup', userSignup)

@@ -21,5 +21,8 @@ app.use(cors({
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 app.use('/doctor',doctorRouter)
+
+app.use(express.static(__dirname + '/public'));
+
 const port = process.env.PORT ||3001
 app.listen(port,()=>console.log('listening on port ' + port));

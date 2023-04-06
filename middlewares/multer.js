@@ -1,76 +1,11 @@
-const multer = require("multer");
-
-
-// const multerStorage = multer.memoryStorage();
-
-// const multerFilter = (req, file, cb) => {
-//   if (file.mimetype.startsWith("image")) {
-//     cb(null, true);
-//   }else if(file.mimetype === 'application/pdf'){
-//     cb(null, true);
-//   } else {
-//     cb("Please upload valid file type.", false);
-//   }
-// };
-
-// const upload = multer({
-//   storage: multerStorage,
-//   fileFilter: multerFilter,
-// });
-// const uploadFiles = upload.array("image", 4);
-
-// const uploadImages = (req, res, next) => {
-//   uploadFiles(req, res, (err) => {
-//     if (err instanceof multer.MulterError) {
-//       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-//         return res.send("Too many files to upload.");
-//       }
-//     } else if (err) {
-//       return res.send(err);
-//     }
-
-//     next();
-//   });
-// };
-
-// const resizeImages = async (req, res, next) => {
-//   if (!req.files) return next();
-
-//   req.body.images = [];
-//   await Promise.all(
-//     req.files.map(async (file) => {
-//       const filename = file.originalname.replace(/\..+$/, "");
-//       const newFilename = `${file.fieldname}-${Date.now()}-${Math.random()}.jpeg`;
-
-//       await sharp(file.buffer)
-//         .resize(272, 533)
-//         .toFormat("jpeg")
-//         .jpeg({ quality: 100 })
-//         .toFile(`./public/image/${newFilename}`);
-//       req.body.images.push(newFilename);
-//     })
-//   );
-
-//   next();
-// };
-
-// module.exports = {
-//   uploadImages: uploadImages,
-//   resizeImages: resizeImages,
-// };
-
+const multer = require('multer');
+const path = require('path');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
 
     let uploadPath = '';
-
-    // Check the input field name to set the upload path
-    if (file.fieldname === 'note') {
-      uploadPath = path.join('uploads', 'notes');
-    } else {
-      uploadPath = path.join('uploads', 'question-papers');
-    }
+      uploadPath = path.join('public','uploads', 'certificate');
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -78,4 +13,18 @@ const storage = multer.diskStorage({
   }
 });
 
-module.exports.upload = multer({ storage });
+const upload = multer({ storage });
+
+function handleUpload(fieldname){
+   return function (req,res,next) {
+    upload.single(fieldname)(req,res,(err)=>{
+      if(err){
+        console.log(err);
+        return res.status(500).json({ messge: "Something gone wrong"});
+      }
+      next()
+    })
+   }
+}
+
+module.exports = {handleUpload:handleUpload}

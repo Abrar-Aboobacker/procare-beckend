@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/adminModel");
 const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcryptjs");
+const user = require("../models/userModel");
 const adminInstance = new Admin();
 module.exports = {
   adminLogin: async (req, res) => {
@@ -166,6 +167,19 @@ module.exports = {
     }catch (error) {
       console.log(error)
       res.status(500).send({message:"Error while fetching doctor",success:false,error})
+    }
+  },
+  getAllUsers:async (req,res)=>{
+    try {
+      const allUsers = await user.find({})
+      res.status(200).send({
+        message: "User data",
+        success: true,
+        data:allUsers
+      })
+    }catch (error) {
+      console.log(error)
+      res.status(500).send({message:"Error while fetching User",success:false,error})
     }
   }
 };

@@ -9,7 +9,8 @@ const {
     getNewDoctors,
     getAllDoctors,
     approvingDoctor,
-    rejectDoctor
+    rejectDoctor,
+    getAllUsers,
 }= require('../controller/admin-controller')
 
 router.post('/admin_login',adminLogin)
@@ -20,4 +21,5 @@ router.get('/getNewDoctors',auth.adminjwt,getNewDoctors)
 router.get('/getAllDoctors',auth.adminjwt,getAllDoctors)
 router.post('/approvingDoctor',auth.adminjwt,approvingDoctor)
 router.post('/rejectDoctor',auth.adminjwt,rejectDoctor)
+router.get('/getAllUsers',auth.adminjwt,getAllUsers)
 module.exports= router

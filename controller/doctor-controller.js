@@ -6,18 +6,19 @@ const jwt = require('jsonwebtoken')
 module.exports = {
     doctorSignup: async (req, res) => {
         try {
-            const doctorExist = await doctor.findOne({email:req.body.email})
+            const doctorExist = await doctor.findOne({email:req.body.values.email})
             if(doctorExist){
                 return res.status(200).send({message:"user already exists",success:false});
             }
-            const password = req.body.password
+            const password = req.body.values.password
             const salt = await bcrypt.genSalt()
             const hashedPassword= await bcrypt.hash(password,salt)
-            req.body.password = hashedPassword
-            const newDoctor = new doctor(req.body)
+            req.body.values.password = hashedPassword
+            const newDoctor = new doctor(req.body.values)
             await newDoctor.save()
             res.status(200).send({message:"Doctor created successfully",success:true})
         } catch (error) {
+            console.log(error);
             res.status(500).send({message:"error creating user",success:false})
         }
     },
@@ -49,7 +50,9 @@ module.exports = {
             
             const doctorStatus = await doctor.findById({_id:req.doctorId})
             const IsActive = doctorStatus.isActive
+            if(IsActive =="active"){
             res.status(200).send({message:"doctor is acitve",success:true,data:IsActive})
+            }
         } catch (error) {
             console.log(error)
             res.status(500).json({ message: 'Error getting doctor status' });
@@ -57,7 +60,7 @@ module.exports = {
     },
     doctorapply:async(req,res)=>{
         try {
-            
+            const path = req.file.path.replace("public", "")
             const information = req.body
             // console.log(information);
             const updateDoctor = await doctor.updateOne({_id:req.doctorId},{
@@ -69,6 +72,7 @@ module.exports = {
                     specialization:information.specialization,
                     experience:information.experience,
                     feesPerCunsaltation:information.feesPerCunsaltation,
+                    file:path
 
                 }
             })

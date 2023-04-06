@@ -24,16 +24,6 @@ module.exports ={
                 sendOtp(mobilenum)
                 res.status(200).send({message:"otp is send to your mobile number",success:true});
             }
-            
-            // const password = req.body.values.password
-            // const salt = await bcrypt.genSalt()
-            // const hashedPassword = await bcrypt.hash(password,salt);
-            // req.body.values.password = hashedPassword
-            // req.body.values.cpassword = hashedPassword
-            // const newUser = new user(req.body.values)
-            
-            // await newUser.save()
-            // res.status(200).send({message:"User created successfully",success:true})
         }catch(err) {
             console.log(err)
             res.status(500).send({message:"error while creating user",success:false,err})
@@ -44,8 +34,6 @@ module.exports ={
         let{password}= signupData
         const otp = req.body.values.otpis
         try {
-          
-            console.log(fName);
             await verifyOtp(phone, otp).then(async (verification_check) => {
                 if (verification_check.status == "approved") {
                     password = await bcrypt.hash(signupData.password, 10)
@@ -71,13 +59,9 @@ module.exports ={
           },
     userLogin:async(req,res)=>{
         try {
-            console.log(req.body);
             const userz = await user.findOne({email:req.body.values.email});
-            console.log(userz+"gggggggggg");
-            if(userz){
-                
+            if(userz){ 
                 const isMatch = await bcrypt.compare(req.body.values.password,userz.password)
-                
                 if(isMatch){
                     const usertoken = jwt.sign({userId:userz._id},process.env.JWT_SECRET_KEY,{expiresIn:"2d"})
                     res.status(200).send({message:"Login successful",success:true,data:usertoken,userz})

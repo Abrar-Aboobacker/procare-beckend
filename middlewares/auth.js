@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 (module.exports.userjwt = async (req, res, next) => {
   try {
     const usertoken = req.headers["authorization"]?.split(" ")[1];
-    // console.log(req.headers);
     if (!usertoken) {
       res.send({ status: "failed", message: "You need token ok" });
     } else {

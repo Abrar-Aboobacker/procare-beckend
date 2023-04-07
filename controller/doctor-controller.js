@@ -15,9 +15,12 @@ module.exports = {
             const hashedPassword= await bcrypt.hash(password,salt)
             req.body.values.password = hashedPassword
             const newDoctor = new doctor(req.body.values)
+            console.log(newDoctor+"dddddddd");
             await newDoctor.save()
-            res.status(200).send({message:"Doctor created successfully",success:true})
+            const doctorwaitingtoken = jwt.sign({doctorwaitingId:newDoctor._id},process.env.JWT_SECRET_KEY,{expiresIn:"10d"})
+            res.status(200).send({message:"Doctor created successfully",success:true,data:doctorwaitingtoken,newDoctor})
         } catch (error) {
+            console.log('heeeeeeeeeeeeee');
             console.log(error);
             res.status(500).send({message:"error creating user",success:false})
         }
@@ -50,8 +53,12 @@ module.exports = {
             
             const doctorStatus = await doctor.findById({_id:req.doctorId})
             const IsActive = doctorStatus.isActive
+            doctorStatus.password = undefined
+            doctorStatus.cpassword = undefined
             if(IsActive =="active"){
-            res.status(200).send({message:"doctor is acitve",success:true,data:IsActive})
+            res.status(200).send({message:"doctor is acitve",success:true,data:IsActive,doctorStatus})
+            }else if(IsActive == 'rejected'){
+            res.status(200).send({message:"doctor request is rejected",success:true,data:IsActive,doctorStatus})
             }
         } catch (error) {
             console.log(error)
@@ -72,8 +79,8 @@ module.exports = {
                     specialization:information.specialization,
                     experience:information.experience,
                     feesPerCunsaltation:information.feesPerCunsaltation,
-                    file:path
-
+                    file:path,
+                    isActive:'pending'
                 }
             })
             const docinfo = await doctor.findOne({_id:req.doctorId})
@@ -89,7 +96,7 @@ module.exports = {
                 }
             })
             await admin.findByIdAndUpdate(adminz._id,{notification})
-            res.status(200).send({success:true, message:"Doctor Account Applied Successfully.Please wait for confirmation"})
+            res.status(200).send({success:true, message:"Doctor Account Applied Succefully",data:docinfo})
         } catch (error) {
             console.log(error)
             res.status(500).send({ message: "something went wrong ",success:false,error})

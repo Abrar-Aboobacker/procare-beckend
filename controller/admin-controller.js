@@ -114,7 +114,7 @@ module.exports = {
   },
   getNewDoctors:async(req,res)=>{
     try {
-      const newDoctor = await Doctor.find({isActive:'pending'})
+      const newDoctor = await Doctor.find({$or:[{isActive:'pending'},{isActive:'rejected'}]})
       res.status(200).send({
         message:"New doctor data",
         success:true,
@@ -128,7 +128,6 @@ module.exports = {
   approvingDoctor:async(req,res)=>{
     try {
       const {doctorId}=req.body
-      console.log(doctorId)
       const approveDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
         $set:{isActive:"active"}
       })
@@ -145,7 +144,13 @@ module.exports = {
   rejectDoctor:async(req,res)=>{
     try {
       const {doctorId}=req.body
-      const rejectDoctor = await Doctor.findByIdAndRemove(doctorId)
+      const reason = req.body.reason
+      const rejectDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
+        $set:{
+          isActive:"rejected",
+          rejectReason:reason
+      }
+      })
       res.status(200).send({
         message: 'Doctor rejected',
         success: true,

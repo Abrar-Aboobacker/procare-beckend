@@ -60,6 +60,9 @@ const doctorSchema= new mongoose.Schema({
     },seennotification:{
         type:Array,
         default:[]
+    },rejectReason:{
+        type:String,
+        default:''
     }
 },{
     timestamps:true

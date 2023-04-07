@@ -13,8 +13,8 @@ const {
 
 router.post('/doctor_signup',doctorSignup)
 router.post('/doctor_signin',doctorLogin)
-router.post ('/doctorInfo',auth.doctorjwt, doctorInfo)
-router.post ('/doctor_apply', auth.doctorjwt,handleUpload('file'), doctorapply)
-router.get('/doctorStatus',auth.doctorjwt,doctorStatus)
+router.post ('/doctorInfo',auth.doctorwaitingjwt, doctorInfo)
+router.post ('/doctor_apply', auth.doctorwaitingjwt,handleUpload('file'), doctorapply)
+router.get('/doctorStatus',auth.doctorwaitingjwt,doctorStatus)
 router.post('/doctorProfileEdit',auth.doctorjwt,doctorProfileEdit)
 module.exports = router

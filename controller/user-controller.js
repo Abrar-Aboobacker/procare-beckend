@@ -22,11 +22,21 @@ module.exports ={
                 cpassword
                 } 
                 sendOtp(mobilenum)
-                res.status(200).send({message:"otp is send to your mobile number",success:true});
+                res.status(200).send({message:"otp is resend to your mobile number",success:true});
             }
         }catch(err) {
             console.log(err)
             res.status(500).send({message:"error while creating user",success:false,err})
+        }
+    },
+    resendUserOtp:async(req,res,next)=>{
+        try {
+            const {userNum}=req.body
+            console.log(userNum);
+            sendOtp(userNum)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send({message:"error while resending otp",success:false,err})
         }
     },
     postOtp: async (req, res,next) => {

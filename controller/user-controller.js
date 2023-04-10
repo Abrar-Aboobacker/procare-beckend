@@ -1,5 +1,6 @@
 
 const user = require('../models/userModel')
+const Doctor = require('../models/doctorModel')
 const bcrypt = require('bcryptjs')
 const {sendOtp,verifyOtp}=require('../middlewares/otp')
 const jwt = require('jsonwebtoken')
@@ -87,5 +88,21 @@ module.exports ={
             console.log(error);
         res.status(500).send({ message: "something went wrong ",success:false,error})
         }
-    }
+    },
+    getAllDoctors:async (req,res)=>{
+        try {
+          const allDoctors = await Doctor.find({isActive:'active'})
+          allDoctors.password = undefined
+          allDoctors.cpassword = undefined
+          allDoctors.file = undefined
+          res.status(200).send({
+            message: "doctor data",
+            success: true,
+            data:allDoctors
+          })
+        }catch (error) {
+          console.log(error)
+          res.status(500).send({message:"Error while fetching doctor",success:false,error})
+        }
+      },
 }

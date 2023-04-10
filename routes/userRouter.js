@@ -5,10 +5,12 @@ const {
     postOtp,
     resendUserOtp,
     userLogin,
+    getAllDoctors
 }=require('../controller/user-controller')
 
 router.post('/signup', userSignup)
 router.post('/postOtp',postOtp)
 router.post('/user_resend_otp',resendUserOtp)
 router.post('/userLogin',userLogin)
+router.get('/allDoctors',getAllDoctors)
 module.exports = router

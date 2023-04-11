@@ -38,11 +38,16 @@ const doctorSchema= new mongoose.Schema({
         type:Number,
         // required:true
     },
-    timings:{
-        type:Object,
-        default:{}
-        // required:true
-    },
+    time:[{
+        start:{
+            type:Date,
+
+        },end:{
+            type:Date,
+        },slot:{
+
+        }
+    }],
     status:{
         type:String,
         defualt:"pending"
@@ -63,6 +68,12 @@ const doctorSchema= new mongoose.Schema({
     },rejectReason:{
         type:String,
         default:''
+    },qualification:{
+        type:String,
+        defualt:''
+    },
+    profile:{
+        type:String,
     }
 },{
     timestamps:true

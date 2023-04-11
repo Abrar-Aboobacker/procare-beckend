@@ -20,5 +20,5 @@ router.post('/resendDoctorOtp',resendDoctorOtp)
 router.post ('/doctorInfo',auth.doctorwaitingjwt, doctorInfo)
 router.post ('/doctor_apply', auth.doctorwaitingjwt,handleUpload('file'), doctorapply)
 router.get('/doctorStatus',auth.doctorwaitingjwt,doctorStatus)
-router.post('/doctorProfileEdit',auth.doctorjwt,doctorProfileEdit)
+router.post('/doctorProfileEdit',auth.doctorjwt,handleUpload('profile'),doctorProfileEdit)
 module.exports = router

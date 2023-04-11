@@ -275,6 +275,7 @@ module.exports = {
   },
   doctorProfileEdit: async (req, res) => {
     const information = req.body;
+    const path = req.file.path.replace("public", "");
     try {
       const updateDoctor = await doctor.updateOne(
         { _id: req.doctorId },
@@ -287,15 +288,18 @@ module.exports = {
             specialization: information.specialization,
             experience: information.experience,
             feesPerCunsaltation: information.feesPerCunsaltation,
+            qualification:information.qualificaiton,
+            profile:path
           },
         }
       );
+      const doctorz = await doctor.findById({_id: req.doctorId})
       res
         .status(200)
         .send({
           success: true,
           message: "Doctor Profile is edited",
-          data: updateDoctor,
+          data: doctorz,
         });
     } catch (error) {
       res

@@ -275,9 +275,8 @@ module.exports = {
   },
   doctorProfileEdit: async (req, res) => {
     const information = req.body;
-    const path = req.file.path.replace("public", "");
     try {
-      const updateDoctor = await doctor.updateOne(
+     await doctor.updateOne(
         { _id: req.doctorId },
         {
           $set: {
@@ -289,7 +288,6 @@ module.exports = {
             experience: information.experience,
             feesPerCunsaltation: information.feesPerCunsaltation,
             qualification:information.qualificaiton,
-            profile:path
           },
         }
       );
@@ -307,4 +305,51 @@ module.exports = {
         .send({ message: "something went wrong", success: false, error });
     }
   },
+  doctorProfilePicUpload: async (req, res) => {
+    const path = req.file.path.replace("public", "");
+    try {
+     await doctor.updateOne(
+        { _id: req.doctorId },
+        {
+          $set: {
+            profile:path,
+          },
+        }
+      );
+      const doctorz = await doctor.findById({_id: req.doctorId})
+      res
+        .status(200)
+        .send({
+          success: true,
+          message: "Doctor Profile is edited",
+          data: doctorz,
+        });
+    } catch (error) {
+      res
+        .status(500)
+        .send({ message: "something went wrong", success: false, error });
+    }
+  },
+  updateSlotTime:async (req,res)=>{
+    try {
+       await doctor.findByIdAndUpdate({_id:req.doctorId},
+        {
+          $set:{
+            time:{start:req.body.startTime,end:req.body.endTime,slot:req.body.slot}
+          }
+        })
+        const updateData = await doctor.findById({_id:req.doctorId})
+        console.log(updateData); 
+        res
+        .status(200)
+        .send({
+          success: true,
+          message: "Doctor Profile is edited",
+          data: updateData,
+        });
+    } catch (error) {
+      
+    }
+   
+  }
 };

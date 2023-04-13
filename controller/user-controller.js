@@ -92,9 +92,11 @@ module.exports ={
     getAllDoctors:async (req,res)=>{
         try {
           const allDoctors = await Doctor.find({isActive:'active'})
-          allDoctors.password = undefined
-          allDoctors.cpassword = undefined
-          allDoctors.file = undefined
+          allDoctors.forEach((doctor) => {
+            doctor.password = undefined;
+            doctor.cpassword = undefined;
+            doctor.file = undefined;
+          });
           res.status(200).send({
             message: "doctor data",
             success: true,

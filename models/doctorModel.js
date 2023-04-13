@@ -38,16 +38,19 @@ const doctorSchema= new mongoose.Schema({
         type:Number,
         // required:true
     },
-    time:[{
+    time:{
         start:{
-            type:Date,
+            type:String,
+            defualt:''
 
         },end:{
-            type:Date,
+            type:String,
+            default:''
         },slot:{
-
+            type:String,
+            defualt:''
         }
-    }],
+    },
     status:{
         type:String,
         defualt:"pending"

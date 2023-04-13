@@ -120,6 +120,7 @@ module.exports = {
         success:true,
         data:newDoctor
       })
+      console.log(newDoctor)
     } catch (error) {
       console.log(error)
       res.status(500).send({message:"Error while fetching new doctor",success:false,error})

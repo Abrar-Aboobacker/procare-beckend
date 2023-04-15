@@ -11,6 +11,8 @@ const {
     approvingDoctor,
     rejectDoctor,
     getAllUsers,
+    getAllPlans,
+    addPlan
 }= require('../controller/admin-controller')
 
 router.post('/admin_login',adminLogin)
@@ -22,4 +24,6 @@ router.get('/getAllDoctors',auth.adminjwt,getAllDoctors)
 router.post('/approvingDoctor',auth.adminjwt,approvingDoctor)
 router.post('/rejectDoctor',auth.adminjwt,rejectDoctor)
 router.get('/getAllUsers',auth.adminjwt,getAllUsers)
+router.post('/addPlan',addPlan)
+router.get('/getAllPlans',auth.adminjwt,getAllPlans)
 module.exports= router

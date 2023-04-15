@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const plan = require('./planModel');
 const userSchema = new mongoose.Schema({
     fName:{
         type: String,
@@ -24,7 +24,11 @@ const userSchema = new mongoose.Schema({
     cpassword:{
         type: String,
         required: true
-    }
+    },
+    plan:{
+            type:mongoose.Types.ObjectId,
+            ref:plan
+        }
     
 },{
         timestamps:true   

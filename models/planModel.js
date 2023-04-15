@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose= require("mongoose");
 
 const planSchema = new mongoose.Schema({
     name:{
@@ -12,6 +12,10 @@ const planSchema = new mongoose.Schema({
     benefits:{
         type:String,
         required:true
+    },
+    isActive:{
+        type:Boolean,
+        default:true,
     },
     price:{
         type:Number,

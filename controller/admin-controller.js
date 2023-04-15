@@ -3,7 +3,7 @@ const Admin = require("../models/adminModel");
 const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcryptjs");
 const user = require("../models/userModel");
-const adminInstance = new Admin();
+const Plan = require("../models/planModel")
 module.exports = {
   adminLogin: async (req, res) => {
     try {
@@ -187,5 +187,30 @@ module.exports = {
       console.log(error)
       res.status(500).send({message:"Error while fetching User",success:false,error})
     }
+  },
+  getAllPlans:async (req,res)=>{
+    try {
+      const allPlans = await Plan.find()
+      res.status(200).send({
+        message: "plans",
+        success: true,
+        data:allPlans
+      })
+    }catch (error) {
+      console.log(error)
+      res.status(500).send({message:"Error while fetching plans",success:false,error})
+    }
+  },
+  addPlan:async (req,res)=>{
+    const {name,sessions,benefits,price}=req.body.values
+    const plans = new Plan({
+        name:name,
+        sessions:sessions,
+        benefits:benefits,
+        price:price
+    })
+   await plans.save()
+   console.log(plans);
+   res.status(200).send({message:"plan is created successfully",success:true,data:plans })
   }
 };

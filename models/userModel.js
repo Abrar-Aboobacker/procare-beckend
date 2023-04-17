@@ -26,10 +26,20 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     plan:{
+
+       curentPlan: {
             type:mongoose.Types.ObjectId,
             ref:plan
+        },
+        isActive:{
+            type: Boolean,
+            default: false
+        },
+        session:{
+            type:Number,
+            
         }
-    
+    }
 },{
         timestamps:true   
      }

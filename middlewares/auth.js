@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
     } else {
       jwt.verify(usertoken, process.env.JWT_SECRET_KEY, (err, decoded) => {
         if (err) {
-          console.log(err);
+          // console.log(err);
           res
             .status(401)
             .send({ message: "admin Auth Failed", success: false });
@@ -19,7 +19,7 @@ const jwt = require("jsonwebtoken");
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log("hyyyyy");
     return res.status(401).send({
       message: "Auth failed ayi",
       success: false,

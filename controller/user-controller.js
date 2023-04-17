@@ -122,6 +122,23 @@ module.exports = {
         .send({ message: "something went wrong ", success: false, error });
     }
   },
+  userInfo: async (req, res) => {
+    try {
+      const userz = await user.findById({ _id: req.userId });
+      userz.password = undefined;
+      if (!userz) {
+        return res
+          .status(200)
+          .send({ message: "Doctor does not exist", success: false });
+      } else {
+        res.status(200).send({ success: true, data: userz });
+      }
+    } catch (error) {
+      res
+        .status(500)
+        .send({ message: "something went wrong", success: false, error });
+    }
+  },
   getAllDoctors: async (req, res) => {
     try {
       const allDoctors = await Doctor.find({ isActive: "active" });
@@ -161,14 +178,15 @@ module.exports = {
         .send({ message: "Error while fetching plans", success: false, error });
     }
   },
-  planOrder: (req, res) => {
+  planOrder: async (req, res) => {
     try {
+        const {_id,name,sessions,benefits,isActice,price }=req.body
       const instance = new Razorpay({
         key_id: process.env.key_id,
         key_secret: process.env.key_secret,
       });
       const options = {
-        amount: req.body.amount * 100,
+        amount: price*100,
         currency: "INR",
         receipt: crypto.randomBytes(10).toString("hex"),
       };
@@ -179,6 +197,7 @@ module.exports = {
             .status(500)
             .send({ message: "something went wrong", success: false });
         } else {
+          console.log(order);
           res.status(200).send({ success: true, data: order });
         }
       });
@@ -189,22 +208,31 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
-  paymentVerify: (req, res) => {
+  paymentVerify: async (req, res) => {
     try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-        req.body;
+     var planId =req.body.price._id
+     var sessions = req.body.price.sessions
+     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+        req.body.response;
       const sign = razorpay_order_id + "|" + razorpay_payment_id;
       const expectedSign = crypto
         .createHmac("sha256", process.env.key_secret)
         .update(sign.toString())
         .digest("hex");
         if(razorpay_signature === expectedSign){
+          await user.findByIdAndUpdate({_id:req.userId},{
+            $set:{
+              "plan.curentPlan":planId,
+              "plan.isActive":true,
+              "plan.session":sessions
+            }
+          })
             return res.status(200).send({ message:"payment verified successfully",success:true });
         }else{
             return res.status(400).send({ message:"invalid signature",success:false})
         }
     } catch (error) {
-      console.log(e);
+      console.log(error);
       res
         .status(500)
         .send({ success: false, message: "internal server error" });

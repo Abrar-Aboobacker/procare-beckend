@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const auth = require('../middlewares/auth')
 const {
     userSignup,
     postOtp,
@@ -17,6 +18,6 @@ router.post('/user_resend_otp',resendUserOtp)
 router.post('/userLogin',userLogin)
 router.get('/allDoctors',getAllDoctors)
 router.get('/getAllPlans',getAllPlans)
-router.post('/planOrder',planOrder)
-router.post('/paymentVerify',paymentVerify)
+router.post('/planOrder',auth.userjwt,planOrder)
+router.post('/paymentVerify',auth.userjwt,paymentVerify)
 module.exports = router

@@ -9,7 +9,8 @@ const {
     getAllDoctors,
     getAllPlans,
     planOrder,
-    paymentVerify
+    paymentVerify,
+    singleDoctorDetails
 }=require('../controller/user-controller')
 
 router.post('/signup', userSignup)
@@ -20,4 +21,5 @@ router.get('/allDoctors',getAllDoctors)
 router.get('/getAllPlans',getAllPlans)
 router.post('/planOrder',auth.userjwt,planOrder)
 router.post('/paymentVerify',auth.userjwt,paymentVerify)
+router.get('/singleDoctorDetails/:id',singleDoctorDetails)
 module.exports = router

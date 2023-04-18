@@ -1,85 +1,97 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const doctorSchema= new mongoose.Schema({
-    name:{
+const doctorSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    file: {
+      type: String,
+      // required: true
+    },
+    password: {
+      type: String,
+      // required:true
+    },
+    cpassword: {
+      type: String,
+      // required:true
+    },
+    specialization: {
+      type: String,
+      default: "",
+      // required:true
+    },
+    experience: {
+      type: String,
+      default: "",
+      // required:true
+    },
+    feesPerCunsaltation: {
+      type: Number,
+      // required:true
+    },
+    time: {
+      start: {
         type: String,
-        required: true
-    },
-    email:{
+        defualt: "",
+      },
+      end: {
         type: String,
-        required: true
-    },
-    phone:{
+        default: "",
+      },
+      slot: {
         type: String,
-        required: true
+        defualt: "",
+      },
     },
-    file:{
-        type: String,
-        // required: true
+    status: {
+      type: String,
+      defualt: "pending",
     },
-    password:{
-        type:String,
-        // required:true
+    isActive: {
+      type: String,
+      required: true,
+      default: "pending",
     },
-    cpassword:{
-        type:String,
-        // required:true
+    about: {
+      type: String,
     },
-    specialization:{
-        type:String,
-        default:''
-        // required:true
-    },experience:{
-        type:String,
-        default:''
-        // required:true
+    notification: {
+      type: Array,
+      default: [],
     },
-    feesPerCunsaltation:{
-        type:Number,
-        // required:true
+    seennotification: {
+      type: Array,
+      default: [],
     },
-    time:{
-        start:{
-            type:String,
-            defualt:''
+    rejectReason: {
+      type: String,
+      default: "",
+    },
+    qualification: {
+      type: String,
+      defualt: "",
+    },
+    profile: {
+      type: String,
+    },
+    language: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-        },end:{
-            type:String,
-            default:''
-        },slot:{
-            type:String,
-            defualt:''
-        }
-    },
-    status:{
-        type:String,
-        defualt:"pending"
-    },
-    isActive:{
-        type:String,
-        required:true,
-        default:"pending"
-    },
-    about:{
-        type:String
-    },notification:{
-        type:Array,
-        default:[]
-    },seennotification:{
-        type:Array,
-        default:[]
-    },rejectReason:{
-        type:String,
-        default:''
-    },qualification:{
-        type:String,
-        defualt:''
-    },
-    profile:{
-        type:String,
-    }
-},{
-    timestamps:true
-})
-
-module.exports = mongoose.model('doctor',doctorSchema)
+module.exports = mongoose.model("doctor", doctorSchema);

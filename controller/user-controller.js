@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const { log } = require("console");
+
 let signupData;
 module.exports = {
   userSignup: async (req, res) => {
@@ -238,4 +239,21 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
+  singleDoctorDetails:async (req,res)=>{
+    try {
+      id=req.params.id;
+      const doctorDetail = await Doctor.findById({_id:id})
+      if(doctorDetail){
+        res.status(200).send({ success: true, message:"details fetched",data:doctorDetail})
+      }else{
+        res.status(404).send({ success:false, message:"error while fetching doctor details"})
+      }
+    } catch (error) {
+      console.log(error);
+      res
+      .status(500)
+      .send({ success: false, message: "internal server error" });
+    }
+   
+  }
 };

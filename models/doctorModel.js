@@ -40,20 +40,34 @@ const doctorSchema = new mongoose.Schema(
       type: Number,
       // required:true
     },
-    time: {
+    // time: {
+    //   start: {
+    //     type: String,
+    //     defualt: "",
+    //   },
+    //   end: {
+    //     type: String,
+    //     default: "",
+    //   },
+    //   slot: {
+    //     type: String,
+    //     defualt: "",
+    //   },
+    // },
+    time: [{
       start: {
-        type: String,
-        defualt: "",
+        type: Date,
+        required: true
       },
       end: {
-        type: String,
-        default: "",
+        type: Date,
+        required: true
       },
-      slot: {
-        type: String,
-        defualt: "",
-      },
-    },
+      slots: {
+        type: Number,
+        required: true
+      }
+    }],
     status: {
       type: String,
       defualt: "pending",
@@ -87,6 +101,7 @@ const doctorSchema = new mongoose.Schema(
     },
     language: {
       type: String,
+      default:''
     },
   },
   {

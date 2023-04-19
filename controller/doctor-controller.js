@@ -65,22 +65,6 @@ module.exports = {
       } else{
             return res.status(200).send({message:"user already exists",success:false}); 
       }
-      // const password = req.body.values.password
-      // const salt = await bcrypt.genSalt()
-      // const hashedPassword= await bcrypt.hash(password,salt)
-      // req.body.values.password = hashedPassword
-      // const newDoctor = new doctor(req.body.values)
-      // console.log(newDoctor+"dddddddd");
-      // await newDoctor.save()
-    //   const doctorwaitingtoken = jwt.sign({doctorwaitingId:newDoctor._id},process.env.JWT_SECRET_KEY,{expiresIn:"10d"})
-    //   res
-    //     .status(200)
-    //     .send({
-    //       message: "Doctor created successfully",
-    //       success: true,
-    //       data: doctorwaitingtoken,
-    //       newDoctor,
-    //     });
     } catch (error) {
       console.log("heeeeeeeeeeeeee");
       console.log(error);
@@ -118,7 +102,8 @@ module.exports = {
                 phone:phone,
                 password:password,
                 cpassword:cpassword,
-                about:about
+                about:about,
+
             })
             await newDoctor.save()
             const doctorwaitingtoken = jwt.sign({doctorwaitingId:newDoctor._id},process.env.JWT_SECRET_KEY,{expiresIn:"10d"})
@@ -224,6 +209,8 @@ module.exports = {
             specialization: information.specialization,
             experience: information.experience,
             feesPerCunsaltation: information.feesPerCunsaltation,
+            qualification:information.qualification,
+            language:information.language,
             file: path,
             isActive: "pending",
           },
@@ -332,12 +319,12 @@ module.exports = {
   },
   updateSlotTime:async (req,res)=>{
     try {
+      const startTime = req.body.startTime;
+      const endTime = req.body.endTime;
+      const slots = req.body.slot;
        await doctor.findByIdAndUpdate({_id:req.doctorId},
-        {
-          $set:{
-            time:{start:req.body.startTime,end:req.body.endTime,slot:req.body.slot}
-          }
-        })
+        {$push: {time: {start: startTime, end: endTime, slots: slots}}},
+       {new: true})
         const updateData = await doctor.findById({_id:req.doctorId})
         console.log(updateData); 
         res
@@ -348,7 +335,7 @@ module.exports = {
           data: updateData,
         });
     } catch (error) {
-      
+      console.log(error);
     }
    
   }

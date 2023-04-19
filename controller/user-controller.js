@@ -243,6 +243,8 @@ module.exports = {
     try {
       id=req.params.id;
       const doctorDetail = await Doctor.findById({_id:id})
+      doctorDetail.password = undefined
+      doctorDetail.cpassword = undefined
       if(doctorDetail){
         res.status(200).send({ success: true, message:"details fetched",data:doctorDetail})
       }else{

@@ -12,7 +12,10 @@ const {
     doctorProfileEdit,
     resendDoctorOtp,
     doctorProfilePicUpload,
-    updateSlotTime
+    updateSlotTime,
+    updateDotorAvailability,
+    getScheduleDetails,
+    deleteScheduleTime
 }= require('../controller/doctor-controller')
 
 router.post('/doctor_signup',doctorSignup)
@@ -25,4 +28,7 @@ router.get('/doctorStatus',auth.doctorwaitingjwt,doctorStatus)
 router.post('/doctorProfileEdit',auth.doctorjwt,doctorProfileEdit)
 router.post('/doctorProfilePicUpload',auth.doctorjwt,handleUpload('profile'),doctorProfilePicUpload)
 router.post('/updateSlotTime',auth.doctorjwt,updateSlotTime)
+router.post('/updateDotorAvailability',auth.doctorjwt,updateDotorAvailability)
+router.get('/getScheduleDetails',auth.doctorjwt,getScheduleDetails)
+router.post('/deleteScheduleTime',auth.doctorjwt,deleteScheduleTime)
 module.exports = router

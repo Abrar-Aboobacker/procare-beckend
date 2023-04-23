@@ -1,13 +1,14 @@
 const user = require("../models/userModel");
 const Doctor = require("../models/doctorModel");
 const Plan = require("../models/planModel");
+const appointment = require("../models/appointmentModel");
 const bcrypt = require("bcryptjs");
 const { sendOtp, verifyOtp } = require("../middlewares/otp");
 const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+const moment = require("moment");
 const { log } = require("console");
-
 let signupData;
 module.exports = {
   userSignup: async (req, res) => {
@@ -30,12 +31,10 @@ module.exports = {
           cpassword,
         };
         sendOtp(mobilenum);
-        res
-          .status(200)
-          .send({
-            message: "otp is resend to your mobile number",
-            success: true,
-          });
+        res.status(200).send({
+          message: "otp is resend to your mobile number",
+          success: true,
+        });
       }
     } catch (err) {
       console.log(err);
@@ -98,14 +97,12 @@ module.exports = {
             process.env.JWT_SECRET_KEY,
             { expiresIn: "2d" }
           );
-          res
-            .status(200)
-            .send({
-              message: "Login successful",
-              success: true,
-              data: usertoken,
-              userz,
-            });
+          res.status(200).send({
+            message: "Login successful",
+            success: true,
+            data: usertoken,
+            userz,
+          });
         } else {
           return res
             .status(200)
@@ -155,13 +152,11 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      res
-        .status(500)
-        .send({
-          message: "Error while fetching doctor",
-          success: false,
-          error,
-        });
+      res.status(500).send({
+        message: "Error while fetching doctor",
+        success: false,
+        error,
+      });
     }
   },
   getAllPlans: async (req, res) => {
@@ -181,13 +176,13 @@ module.exports = {
   },
   planOrder: async (req, res) => {
     try {
-        const {_id,name,sessions,benefits,isActice,price }=req.body
+      const { _id, name, sessions, benefits, isActice, price } = req.body;
       const instance = new Razorpay({
         key_id: process.env.key_id,
         key_secret: process.env.key_secret,
       });
       const options = {
-        amount: price*100,
+        amount: price * 100,
         currency: "INR",
         receipt: crypto.randomBytes(10).toString("hex"),
       };
@@ -211,26 +206,112 @@ module.exports = {
   },
   paymentVerify: async (req, res) => {
     try {
-     var planId =req.body.price._id
-     var sessions = req.body.price.sessions
-     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      var planId = req.body.price._id;
+      var sessions = req.body.price.sessions;
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
         req.body.response;
       const sign = razorpay_order_id + "|" + razorpay_payment_id;
       const expectedSign = crypto
         .createHmac("sha256", process.env.key_secret)
         .update(sign.toString())
         .digest("hex");
-        if(razorpay_signature === expectedSign){
-          await user.findByIdAndUpdate({_id:req.userId},{
-            $set:{
-              "plan.curentPlan":planId,
-              "plan.isActive":true,
-              "plan.session":sessions
-            }
-          })
-            return res.status(200).send({ message:"payment verified successfully",success:true });
+      if (razorpay_signature === expectedSign) {
+        await user.findByIdAndUpdate(
+          { _id: req.userId },
+          {
+            $set: {
+              "plan.curentPlan": planId,
+              "plan.isActive": true,
+              "plan.session": sessions,
+            },
+          }
+        );
+        return res
+          .status(200)
+          .send({ message: "payment verified successfully", success: true });
+      } else {
+        return res
+          .status(400)
+          .send({ message: "invalid signature", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ success: false, message: "internal server error" });
+    }
+  },
+  singleDoctorDetails: async (req, res) => {
+    try {
+      id = req.params.id;
+      const doctorDetail = await Doctor.findById({ _id: id });
+      doctorDetail.password = undefined;
+      doctorDetail.cpassword = undefined;
+      if (doctorDetail) {
+        res.status(200).send({
+          success: true,
+          message: "details fetched",
+          data: doctorDetail,
+        });
+      } else {
+        res.status(404).send({
+          success: false,
+          message: "error while fetching doctor details",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ success: false, message: "internal server error" });
+    }
+  },
+  bookAppointment: async (req, res) => {
+    try {
+      req.body.status = "pending";
+      req.body.date = moment(req.body.date,"DD-MM-YYYY").toISOString() 
+      req.body.time = moment(req.body.time,"HH:mm").toISOString() 
+      const newAppointment = new appointment(req.body);
+      await newAppointment.save();
+      const doctorz = await Doctor.findOne({_id:req.body.doctorId});
+      const notification = doctorz.notification;
+      notification.push({
+        type: "New appointment-request",
+        message: `New appointment request from ${req.body.userInfo.fName +" "+ req.body.userInfo.lName}`,
+        onClickPath: "/user/appointment",
+      });
+      await Doctor.findByIdAndUpdate(doctorz._id, { notification });
+      res
+        .status(200)
+        .send({ success: true, message: "Appointment Book successfully" });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ success: false, message: "internal server error" });
+    }
+  },
+  bookingAvailability:async(req,res)=>{
+    try {
+      console.log(req.body);
+      // const date = moment(req.body.date, 'DD-MM-YYYY').toISOString()
+      const date = req.body.date
+      const time = req.body.time
+      const doctorStart = req.body.doctorInfo.time.start
+      const doctorEnd = req.body.doctorInfo.time.end
+      // const fromTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
+      // const toTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
+      const doctorId = req.body.doctorId
+      console.log(doctorId);
+      const appointments = await appointment.find({_id:doctorId})
+        console.log('ggggggg',appointments,'fffffffff');
+        console.log(appointments.length);
+        if(appointments.length>0){
+          console.log('hyyyy'); 
+          return res.status(200).send({message: 'appointment not available at this time',success:true})
         }else{
-            return res.status(400).send({ message:"invalid signature",success:false})
+          console.log('iiii');
+          return res.status(200).send({message: 'Appointment is available',success:true})
         }
     } catch (error) {
       console.log(error);
@@ -239,23 +320,21 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
-  singleDoctorDetails:async (req,res)=>{
+  isPlanPresent:async (req,res)=>{
     try {
-      id=req.params.id;
-      const doctorDetail = await Doctor.findById({_id:id})
-      doctorDetail.password = undefined
-      doctorDetail.cpassword = undefined
-      if(doctorDetail){
-        res.status(200).send({ success: true, message:"details fetched",data:doctorDetail})
-      }else{
-        res.status(404).send({ success:false, message:"error while fetching doctor details"})
+      const userz = await user.findById({ _id: req.userId });
+      const plan = userz.plan.isActive
+      if (plan==false) {
+        return res
+          .status(200)
+          .send({ message: "Doctor does not exist", success: true });
+      } else {
+        res.status(200).send({ success: false, data: userz });
       }
     } catch (error) {
-      console.log(error);
       res
-      .status(500)
-      .send({ success: false, message: "internal server error" });
+        .status(500)
+        .send({ message: "something went wrong", success: false, error });
     }
-   
   }
 };

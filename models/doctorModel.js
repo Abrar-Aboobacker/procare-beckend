@@ -1,5 +1,34 @@
 const mongoose = require("mongoose");
 
+const daySchema = new mongoose.Schema({
+  day:{
+    type:String,
+    trim: true,
+  },
+ 
+  status:{
+    type:String,
+    trim: true,
+    default:"active"
+  },
+  time:[{
+    start:{
+      type:Date,
+      trim: true
+    },
+      end:{
+        type:Date,
+        trim: true
+      },
+      slots:{
+        type:Number,
+        trim: true
+      },
+      
+
+  }]
+})
+
 const doctorSchema = new mongoose.Schema(
   {
     name: {
@@ -40,34 +69,7 @@ const doctorSchema = new mongoose.Schema(
       type: Number,
       // required:true
     },
-    // time: {
-    //   start: {
-    //     type: String,
-    //     defualt: "",
-    //   },
-    //   end: {
-    //     type: String,
-    //     default: "",
-    //   },
-    //   slot: {
-    //     type: String,
-    //     defualt: "",
-    //   },
-    // },
-    time: [{
-      start: {
-        type: Date,
-        required: true
-      },
-      end: {
-        type: Date,
-        required: true
-      },
-      slots: {
-        type: Number,
-        required: true
-      }
-    }],
+    availability:[daySchema],
     status: {
       type: String,
       defualt: "pending",
@@ -101,7 +103,7 @@ const doctorSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      default:''
+      default: "",
     },
   },
   {

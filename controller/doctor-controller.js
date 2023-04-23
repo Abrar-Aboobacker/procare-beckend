@@ -323,8 +323,11 @@ module.exports = {
       const endTime = req.body.endTime;
       const slots = req.body.slot;
        await doctor.findByIdAndUpdate({_id:req.doctorId},
-        {$push: {time: {start: startTime, end: endTime, slots: slots}}},
-       {new: true})
+        {
+          $set:{
+            time:{start:req.body.startTime,end:req.body.endTime,slot:req.body.slot}
+          }
+        })
         const updateData = await doctor.findById({_id:req.doctorId})
         console.log(updateData); 
         res
@@ -337,6 +340,106 @@ module.exports = {
     } catch (error) {
       console.log(error);
     }
-   
+  },
+updateDotorAvailability:async (req, res) => {
+    try {
+      const { selectedDay, timings } = req.body;
+      const doctorData = await doctor.findOne({ _id: req.doctorId });
+      console.log(doctorData);
+      const existingDay = doctorData.availability.find(
+        (day) => day.day === selectedDay
+      )
+      if (existingDay) {
+        existingDay.time.push(
+          ...timings.map((timing) => ({
+            start: new Date(`2023-03-01T${timing.startTime}:00Z`),
+            end: new Date(`2023-03-01T${timing.endTime}:00Z`),
+            slots: timing.slots,
+          }))
+        );
+      } else {
+        doctorData.availability.push({
+          day: selectedDay,
+          time: timings.map((timing) => ({
+            start: new Date(`2023-03-01T${timing.startTime}:00Z`),
+            end: new Date(`2023-03-01T${timing.endTime}:00Z`),
+            slots: timing.slots,
+          })),
+        });
+      }
+  
+      const doctorz = new doctor(doctorData);
+      await doctorz.save();
+      console.log(doctorz);
+      if (doctorz) {
+        res
+          .status(201)
+          .send({ message: "Your Time schedule added ", success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No doctor Exist  ", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `postDoctorAvailability controller ${error.message}`,
+      });
+    }
+  },
+   getScheduleDetails:async (req, res) => {
+    try {
+      const doctorr = await doctor.findOne({ _id: req.doctorId });
+  
+      const schedule = doctorr.availability;
+      if (schedule) {
+        res.status(201).send({ schedule, success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No doctor Exist  ", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `postDoctorAvailability controller ${error.message}`,
+      });
+    }
+  },
+  deleteScheduleTime:async (req, res) => {
+    try {
+      const doctorId = req.doctorId;
+      const timingId = req.query.timingId;
+      const doctorr = await doctor.findOne({ _id: req.doctorId });
+  
+      if (!doctorr) {
+        return res
+          .status(200)
+          .send({ message: " doctor not Exist  ", success: false });
+      } else {
+        doctorr.availability.forEach((day) => {
+          day.time.pull({ _id: timingId });
+        });
+        doctorr.availability.forEach((day, index) => {
+          if (day.time.length === 0) {
+            doctorr?.availability?.splice(index, 1);
+          }
+        });
+  
+        doctorr.save().then(() => {
+          res
+            .status(201)
+            .send({ message: "Your Timing is removed", success: true });
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `deleteScheduleTime controller ${error.message}`,
+      });
+    }
   }
 };

@@ -13,7 +13,9 @@ const {
     singleDoctorDetails,
     bookAppointment,
     bookingAvailability,
-    isPlanPresent
+    isPlanPresent,
+    verifyAppointment,
+    availableSlot,
 }=require('../controller/user-controller')
 
 router.post('/signup', userSignup)
@@ -28,4 +30,6 @@ router.get('/singleDoctorDetails/:id',singleDoctorDetails)
 router.post('/book_appointment',auth.userjwt,bookAppointment)
 router.post('/booking_availabilily',auth.userjwt,bookingAvailability)
 router.get('/isPlanPresent',auth.userjwt,isPlanPresent)
+router.post('/verifyAppointment',auth.userjwt,verifyAppointment)
+router.get('/availableSlot/:id/:selectedDay',availableSlot)
 module.exports = router

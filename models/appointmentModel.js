@@ -2,39 +2,39 @@ const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema(
   {
-    userId: {
-      type: String,
-      required: true,
+    client: {
+      type: mongoose.Schema.Types.ObjectId,
+      trim: true,
+      ref: "users",
     },
-    doctorId: {
-      type: String,
-      required: true,
-    },
-    doctorInfo: {
-      type: String,
-      required: true,
-    },
-    userInfo: {
-      type: String,
-      required: true,
-    },
-    date: {
-      type: String,
-      required: true,
+    doctor: {
+      type: mongoose.Schema.Types.ObjectId,
+      trim: true,
+      ref: "doctors",
     },
     status: {
       type: String,
-      required: true,
+      trim: true,
       default: "pending",
     },
+    consultationFees: {
+      type: Number,
+    },
+    date: {
+      type: String,
+    },
+  
     time: {
       type: String,
-    //   required: true,
+    },
+    token: {
+      type: Number,
     },
   },
   {
     timestamps: true,
   }
 );
+
 
 module.exports = mongoose.model("Appointments", appointmentSchema);

@@ -247,11 +247,17 @@ module.exports = {
       const doctorDetail = await Doctor.findById({ _id: id });
       doctorDetail.password = undefined;
       doctorDetail.cpassword = undefined;
+      const availableDays = [];
+      doctorDetail.availability.forEach((day) => {
+        if (day.status == "active") availableDays.push(day.day);
+      });
+      console.log(availableDays);
       if (doctorDetail) {
         res.status(200).send({
           success: true,
           message: "details fetched",
           data: doctorDetail,
+          availableDays,
         });
       } else {
         res.status(404).send({
@@ -269,15 +275,17 @@ module.exports = {
   bookAppointment: async (req, res) => {
     try {
       req.body.status = "pending";
-      req.body.date = moment(req.body.date,"DD-MM-YYYY").toISOString() 
-      req.body.time = moment(req.body.time,"HH:mm").toISOString() 
+      req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
+      req.body.time = moment(req.body.time, "HH:mm").toISOString();
       const newAppointment = new appointment(req.body);
       await newAppointment.save();
-      const doctorz = await Doctor.findOne({_id:req.body.doctorId});
+      const doctorz = await Doctor.findOne({ _id: req.body.doctorId });
       const notification = doctorz.notification;
       notification.push({
         type: "New appointment-request",
-        message: `New appointment request from ${req.body.userInfo.fName +" "+ req.body.userInfo.lName}`,
+        message: `New appointment request from ${
+          req.body.userInfo.fName + " " + req.body.userInfo.lName
+        }`,
         onClickPath: "/user/appointment",
       });
       await Doctor.findByIdAndUpdate(doctorz._id, { notification });
@@ -291,28 +299,35 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
-  bookingAvailability:async(req,res)=>{
+  bookingAvailability: async (req, res) => {
     try {
       console.log(req.body);
       // const date = moment(req.body.date, 'DD-MM-YYYY').toISOString()
-      const date = req.body.date
-      const time = req.body.time
-      const doctorStart = req.body.doctorInfo.time.start
-      const doctorEnd = req.body.doctorInfo.time.end
+      const date = req.body.date;
+      const time = req.body.time;
+      const doctorStart = req.body.doctorInfo.time.start;
+      const doctorEnd = req.body.doctorInfo.time.end;
       // const fromTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
       // const toTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
-      const doctorId = req.body.doctorId
+      const doctorId = req.body.doctorId;
       console.log(doctorId);
-      const appointments = await appointment.find({_id:doctorId})
-        console.log('ggggggg',appointments,'fffffffff');
-        console.log(appointments.length);
-        if(appointments.length>0){
-          console.log('hyyyy'); 
-          return res.status(200).send({message: 'appointment not available at this time',success:true})
-        }else{
-          console.log('iiii');
-          return res.status(200).send({message: 'Appointment is available',success:true})
-        }
+      const appointments = await appointment.find({ _id: doctorId });
+      console.log("ggggggg", appointments, "fffffffff");
+      console.log(appointments.length);
+      if (appointments.length > 0) {
+        console.log("hyyyy");
+        return res
+          .status(200)
+          .send({
+            message: "appointment not available at this time",
+            success: true,
+          });
+      } else {
+        console.log("iiii");
+        return res
+          .status(200)
+          .send({ message: "Appointment is available", success: true });
+      }
     } catch (error) {
       console.log(error);
       res
@@ -320,11 +335,11 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
-  isPlanPresent:async (req,res)=>{
+  isPlanPresent: async (req, res) => {
     try {
       const userz = await user.findById({ _id: req.userId });
-      const plan = userz.plan.isActive
-      if (plan==false) {
+      const plan = userz.plan.isActive;
+      if (plan == false) {
         return res
           .status(200)
           .send({ message: "Doctor does not exist", success: true });
@@ -336,5 +351,124 @@ module.exports = {
         .status(500)
         .send({ message: "something went wrong", success: false, error });
     }
-  }
+  },
+  verifyAppointment: async (req, res) => {
+    try {
+      console.log(req.body,'lklklkdklflkdf');
+      const { date, timeId, doctor,time } = req.body;
+      const client = req.userId;
+      const selectedDay = moment(date).format("dddd");
+
+     Doctor.findOne(
+        {
+          _id: doctor,
+          "availability.day": selectedDay,
+          "availability.time._id": timeId,
+        },
+        {
+          "availability.$": 1,
+        }
+      ).then(async (doctors) => {
+        if (!doctors) {
+          res.status(200).send({
+            message: "Doctor not found",
+            success: false,
+          });
+          return;
+        }
+        const availablity = doctors.availability[0];
+        const times = availablity.time.find((t) => t._id == timeId);
+        if (!times) {
+          res.status(200).send({
+            message: "Time not available",
+            success: false,
+          });
+          return;
+        }
+
+        const totalSlots = times.slots;
+        const toTime = moment(times.start).format(" h:mm a");
+      
+        const allreadyBooked = await appointment.find({
+          doctor: doctor,
+          date: date,
+          time: toTime,
+          client: client,
+        });
+        console.log(allreadyBooked.length, "boooked");
+        if (allreadyBooked.length !== 0) {
+          res.status(200).send({
+            message: "You have already booked this slot",
+            success: false,
+          });
+          return;
+        }
+
+        const apointments = await appointment.find({
+          doctor: doctor,
+          date: date,
+          time: toTime,
+        });
+        var appointmentsCount = apointments.length;
+        if (totalSlots <= appointmentsCount) {
+          res.status(200).send({
+            message: "The selected slot is no longer available.",
+            success: false,
+          });
+          return;
+        }else{
+          const token = appointmentsCount+ 1
+          const newAppointment = new appointment({
+            date:date,
+            time:time,
+            doctor:doctor,
+            token:token,
+            client:client
+          })
+          await newAppointment.save();
+          res.send({
+            schedulTime: toTime,
+            token: appointmentsCount + 1,
+            message: "Appointment verifyd.",
+            success: true,
+          });
+        }
+        });
+
+       
+       
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `client getSearchDoctor  controller ${error.message}`,
+      });
+    }
+  },
+  availableSlot: async (req, res) => {
+    try {
+      const { id, selectedDay } = req.params;
+      console.log(id, selectedDay);
+      const doctorr = await Doctor.findById(id);
+      const availability = doctorr.availability.find(
+        (day) => day.day === selectedDay
+      );
+
+      if (!availability) {
+        res.status(200).send({
+          message: "Doctor is not available on this day.",
+          success: false,
+        });
+        return;
+      }
+      // return availability for selected day
+      res.status(201).send({ availability, success: true });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `client getSearchDoctor  controller ${error.message}`,
+      });
+    }
+  },
 };

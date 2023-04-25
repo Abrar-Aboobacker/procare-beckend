@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
-
+const users = require('./userModel')
+const doctors = require('./doctorModel')
 const appointmentSchema = new mongoose.Schema(
   {
     client: {
       type: mongoose.Schema.Types.ObjectId,
       trim: true,
-      ref: "users",
+      ref: users,
     },
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
       trim: true,
-      ref: "doctors",
+      ref:doctors,
     },
     status: {
       type: String,
@@ -36,5 +37,4 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
-
-module.exports = mongoose.model("Appointments", appointmentSchema);
+module.exports = mongoose.model("Appointment", appointmentSchema);

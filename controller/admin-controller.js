@@ -128,7 +128,7 @@ module.exports = {
   },
   approvingDoctor:async(req,res)=>{
     try {
-      const {doctorId}=req.body
+      // const {doctorId}=req.body
       const approveDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
         $set:{isActive:"active"}
       })

@@ -15,7 +15,12 @@ const {
     updateSlotTime,
     updateDotorAvailability,
     getScheduleDetails,
-    deleteScheduleTime
+    deleteScheduleTime,
+    getAppointments,
+    approveAppointment,
+    cancelAppointment,
+    completedAppointment,
+    getAppointmentHistory
 }= require('../controller/doctor-controller')
 
 router.post('/doctor_signup',doctorSignup)
@@ -31,4 +36,9 @@ router.post('/updateSlotTime',auth.doctorjwt,updateSlotTime)
 router.post('/updateDotorAvailability',auth.doctorjwt,updateDotorAvailability)
 router.get('/getScheduleDetails',auth.doctorjwt,getScheduleDetails)
 router.post('/deleteScheduleTime',auth.doctorjwt,deleteScheduleTime)
+router.get('/getAppointments',auth.doctorjwt,getAppointments)
+router.post('/approveAppointment',auth.doctorjwt,approveAppointment)
+router.post ('/cancelAppointment',auth.doctorjwt,cancelAppointment)
+router.post ('/completedAppointment',auth.doctorjwt,completedAppointment)
+router.get('/getAppointmentHistory',auth.doctorjwt,getAppointmentHistory)
 module.exports = router

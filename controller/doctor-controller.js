@@ -3,6 +3,8 @@ const admin = require("../models/adminModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const AppointmentModel = require("../models/AppointmentModel");
+const userModel = require("../models/userModel");
 const nodeUser = process.env.nodeMailer_User;
 const nodePass = process.env.SMTP_key_value;
 const port = process.env.SMTP_PORT;
@@ -439,6 +441,184 @@ updateDotorAvailability:async (req, res) => {
       res.status(500).send({
         success: false,
         message: `deleteScheduleTime controller ${error.message}`,
+      });
+    }
+  },
+   getAppointments: async (req, res) => {
+    try {
+      const pendingAppointments = await AppointmentModel.find({
+        doctor: req.doctorId,
+        $or:[{status:'pending'},{status:'active'}]
+      })
+        .populate("client")
+        .sort({ updatedAt: -1 });
+      if (pendingAppointments) {
+        res.status(201).send({ pendingAppointments, success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No pendingDoctors", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getAppointment controller ${error.message}`,
+      });
+    }
+  },
+   approveAppointment: async (req, res) => {
+    try {
+      const appointment = await AppointmentModel.findByIdAndUpdate(
+        req.body.id,
+        { status: "active" },
+        { new: true }
+      )
+      // const userDetails = await AppointmentModel.find({
+      //   doctor: req.doctorId,
+      //   // status: "pending",
+      // }).populate("client")
+      // const session = userDetails[0].client.plan.session
+      // const id= userDetails[0].client._id
+      if (appointment) {
+        const Doctor = await doctor.findById(appointment.doctor)
+        const user = await userModel.findById(appointment.client)
+        const notification = user.notification
+        notification.push({
+          type: "Appointment-approval",
+          message: `Your appointment request is approved.by  ${
+            Doctor.name 
+          }`,
+          onClickPath: "/user/appointment",
+        });
+        
+        await userModel.findOneAndUpdate(user._id,{notification})
+        // const updateUser = await userModel.findByIdAndUpdate(id,
+        //   {'plan.session':session-1})
+
+        res.status(201).send({
+          message: ` appointment approved`,
+          success: true,
+        });
+      } else {
+        return res.status(200).send({
+          message: `Patient  does not exist`,
+          success: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `AcceptAppointment controller ${error.message}`,
+      });
+    }
+  },
+  cancelAppointment:async (req, res) => {
+    try {
+      console.log(req.body);
+      const appointment = await AppointmentModel.findByIdAndUpdate(
+        req.body.id,
+        { status: "cancelled" },
+        { new: true }
+      );
+
+
+      if (appointment) {
+        const client = await userModel.findById(appointment.client)
+        const id =client._id
+        const session = client.plan.session
+        console.log(session);
+        await userModel.findOneAndUpdate({_id:appointment.client},{
+          $set:{
+            "plan.session":session +1
+          },
+        })
+        const doctorr = await doctor.findById(appointment.doctor);
+  
+        const notifications = client.notification;
+        notifications.push({
+          type: "cancelAppointment",
+          message: `${doctorr.name}  has canceled the ${appointment.date} ${appointment.time} booking `,
+        });
+        console.log(notifications);
+        await userModel.updateOne({_id:id},{
+          $set: {notification:notifications}
+        })
+        // const newClient = await userModel.findByIdAndUpdate(
+        //   appointment.client,
+        //   {
+        //     notifications,
+        //   }
+        // );
+  
+        res.status(201).send({
+          message: ` Patient Booking cancelled`,
+          // count: newClient.notification.length,
+          success: true,
+        });
+      } else {
+        return res.status(200).send({
+          message: `Patient  doesnot exist`,
+          success: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `rejectDoctorAppointment controller ${error.message}`,
+      });
+    }
+  },
+  completedAppointment:async (req, res) => {
+    try {
+      const appointment = await AppointmentModel.findByIdAndUpdate(
+        req.body.id,
+        { status: "completed" },
+        { new: true }
+      );
+      if (appointment) {
+        res.status(201).send({
+          message: ` mark as Checked`,
+          success: true,
+        });
+      } else {
+        return res.status(200).send({
+          message: `Patient  doesnot exist`,
+          success: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `AcceptAppointment controller ${error.message}`,
+      });
+    }
+  },
+  getAppointmentHistory: async (req, res) => {
+    try {
+      const doctorId = req.doctorId;
+      const appointmentHistory = await AppointmentModel.find({
+        doctor: doctorId,
+        // status: { $nin: ["pending"] },
+        $or:[{status:'completed'},{status:'cancelled'}]
+      })
+        .populate("client")
+        .sort({ updatedAt: -1 });
+      if (appointmentHistory) {
+        res.status(201).send({ appointmentHistory, success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No notifications Exist  ", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getDoctorAppointmentHistory controller ${error.message}`,
       });
     }
   }

@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    dob:{
+      type:Date,
+      required: true,
+    },
+    gender:{
+      type:String,
+      required: true,
+    },
     password: {
       type: String,
       required: true,
@@ -33,6 +41,9 @@ const userSchema = new mongoose.Schema(
     cpassword: {
       type: String,
       required: true,
+    },
+    profile: {
+      type: String,
     },
     plan: {
       curentPlan: {

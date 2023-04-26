@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const moment = require("moment");
+const { log } = require("console");
 
 let signupData;
 module.exports = {
@@ -132,6 +133,61 @@ module.exports = {
         res.status(200).send({ success: true, data: userz });
       }
     } catch (error) {
+      res
+        .status(500)
+        .send({ message: "something went wrong", success: false, error });
+    }
+  },
+  userProfileEdit: async (req, res) => {
+    try {
+      console.log(req.userId);
+      const information = req.body;
+      console.log(information);
+      await user.updateOne(
+        { _id: req.userId },
+        {
+          $set: {
+            fName: information.fName,
+            lName: information.lName,
+            phone: information.phone,
+            email: information.email,
+            dob: information.dob,
+            gender: information.gender,
+          },
+        }
+      );
+      const userr = await user.findById({ _id: req.userId });
+      res.status(200).send({
+        success: true,
+        message: "User Profile is edited",
+        data: userr,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "something went wrong", success: false, error });
+    }
+  },
+  userProfilePicUpload: async (req, res) => {
+    const path = req.file.path.replace("public", "");
+    try {
+      await user.updateOne(
+        { _id: req.userId },
+        {
+          $set: {
+            profile: path,
+          },
+        }
+      );
+      const userr = await user.findById({ _id: req.userId });
+      res.status(200).send({
+        success: true,
+        message: "Doctor Profile is edited",
+        data: userr,
+      });
+    } catch (error) {
+      console.log(error);
       res
         .status(500)
         .send({ message: "something went wrong", success: false, error });
@@ -354,12 +410,12 @@ module.exports = {
   },
   verifyAppointment: async (req, res) => {
     try {
-      console.log(req.body,'lklklklkklk');
-      const { date, timeId, doctor,time } = req.body;
+      console.log(req.body, "lklklklkklk");
+      const { date, timeId, doctor, time } = req.body;
       const client = req.userId;
       const selectedDay = moment(date).format("dddd");
 
-     Doctor.findOne(
+      Doctor.findOne(
         {
           _id: doctor,
           "availability.day": selectedDay,
@@ -388,7 +444,7 @@ module.exports = {
 
         const totalSlots = times.slots;
         const toTime = moment(times.start).format(" h:mm a");
-      
+
         const allreadyBooked = await appointment.find({
           doctor: doctor,
           date: date,
@@ -416,52 +472,53 @@ module.exports = {
             success: false,
           });
           return;
-        }else{
+        } else {
           // it is for updating the plan session
-          const userSession = await user.findOne({_id:req.userId})
-          const session = userSession.plan.session
-          if(session>0){
-            const userUpdate=  await  user.findOneAndUpdate({_id:req.userId},{
-              $set: {
-                "plan.session":session-1,
-              },
-            })
+          const userSession = await user.findOne({ _id: req.userId });
+          const session = userSession.plan.session;
+          if (session > 0) {
+            const userUpdate = await user.findOneAndUpdate(
+              { _id: req.userId },
+              {
+                $set: {
+                  "plan.session": session - 1,
+                },
+              }
+            );
             console.log(userUpdate);
-        const token = appointmentsCount+ 1
-        const newAppointment = new appointment({
-          date:date,
-          time:time,
-          doctor:doctor,
-          token:token,
-          client:client
-        })
-        await newAppointment.save();
-        const doctorNotification  = await Doctor.findOne({_id:doctor})
-        const notification = doctorNotification.notification
-        notification.push({
-          type: "New appointment-request",
-          message: `New appointment request from ${
-            userSession.fName + " " + userSession.lName
-          }`,
-          onClickPath: "/user/appointment",
-        });
-        await Doctor.findOneAndUpdate(doctor,{notification})
-        res.send({
-          schedulTime: toTime,
-          token: appointmentsCount + 1,
-          message: "Appointment verifyd.",
-          success: true,
-        });
-          }else{
-            res.status(200).send({success:false, message:"session is expired.please purchase a plan "})
+            const token = appointmentsCount + 1;
+            const newAppointment = new appointment({
+              date: date,
+              time: time,
+              doctor: doctor,
+              token: token,
+              client: client,
+            });
+            await newAppointment.save();
+            const doctorNotification = await Doctor.findOne({ _id: doctor });
+            const notification = doctorNotification.notification;
+            notification.push({
+              type: "New appointment-request",
+              message: `New appointment request from ${
+                userSession.fName + " " + userSession.lName
+              }`,
+              onClickPath: "/user/appointment",
+            });
+            await Doctor.findOneAndUpdate(doctor, { notification });
+            res.send({
+              schedulTime: toTime,
+              token: appointmentsCount + 1,
+              message: "Appointment verifyd.",
+              success: true,
+            });
+          } else {
+            res.status(200).send({
+              success: false,
+              message: "session is expired.please purchase a plan ",
+            });
           }
-              
-         
         }
-        });
-
-       
-       
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send({
@@ -493,6 +550,148 @@ module.exports = {
       res.status(500).send({
         success: false,
         message: `client getSearchDoctor  controller ${error.message}`,
+      });
+    }
+  },
+  changePassword: async (req, res) => {
+    try {
+      console.log(req.body.values);
+      const userr = await user.findOne({ _id: req.userId });
+      const isMatch = await bcrypt.compare(
+        req.body.values.currentPassword,
+        userr.password
+      );
+      if (isMatch) {
+        password = await bcrypt.hash(req.body.values.password, 10);
+        cpassword = await bcrypt.hash(req.body.values.cpassword, 10);
+        await user.updateOne(
+          { _id: req.userId },
+          {
+            $set: {
+              password: password,
+              cpassword: cpassword,
+            },
+          }
+        );
+        const updateUser = await user.findOne({ _id: req.userId });
+        res
+          .status(200)
+          .send({ message: "Password Change Successfully", success: true });
+      } else {
+        res
+          .status(200)
+          .send({ message: "Current Password is not correct", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  getPendingAppointments: async (req, res) => {
+    try {
+      const pendingAppointments = await appointment
+        .find({
+          user: req.userId,
+          status: "pending",
+        })
+        .populate("doctor")
+        .sort({ updatedAt: -1 });
+      console.log(pendingAppointments);
+      if (pendingAppointments) {
+        res.status(200).send({ pendingAppointments, success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No pending appointments", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getAppointment controller ${error.message}`,
+      });
+    }
+  },
+  cancelAppointment: async (req, res) => {
+    try {
+      console.log(req.body);
+      const appointmentt = await appointment.findByIdAndUpdate(
+        req.body.id,
+        { status: "cancelled" },
+        { new: true }
+      );
+
+      if (appointmentt) {
+        const client = await user.findById(appointmentt.client);
+        const id = client._id;
+        const session = client.plan.session;
+        await user.findOneAndUpdate(
+          { _id: appointmentt.client },
+          {
+            $set: {
+              "plan.session": session + 1,
+            },
+          }
+        );
+        // const doctorr = await Doctor.findById(appointmentt.doctor);
+
+        // const notifications = client.notification;
+        // notifications.push({
+        //   type: "cancelAppointment",
+        //   message: `${doctorr.name}  has canceled the ${appointmentt.date} ${appointmentt.time} booking `,
+        // });
+        // console.log(notifications);
+        // await userModel.updateOne({_id:id},{
+        //   $set: {notification:notifications}
+        // })
+        // // const newClient = await userModel.findByIdAndUpdate(
+        // //   appointment.client,
+        // //   {
+        // //     notifications,
+        // //   }
+        // // );
+
+        res.status(201).send({
+          message: ` Patient Booking cancelled`,
+          // count: newClient.notification.length,
+          success: true,
+        });
+      } else {
+        return res.status(200).send({
+          message: `Patient  doesnot exist`,
+          success: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `rejectDoctorAppointment controller ${error.message}`,
+      });
+    }
+  },
+  getAppointmentHistory: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const appointmentHistory = await appointment
+        .find({
+          client: userId,
+          // status: { $nin: ["pending"] },
+          // $or:[{status:'completed'},{status:'cancelled'}]
+        })
+        .populate("doctor")
+        .sort({ updatedAt: -1 });
+      if (appointmentHistory) {
+        res.status(201).send({ appointmentHistory, success: true });
+      } else {
+        return res
+          .status(200)
+          .send({ message: "No notifications Exist  ", success: false });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getDoctorAppointmentHistory controller ${error.message}`,
       });
     }
   },

@@ -6,6 +6,7 @@ const {
     postOtp,
     resendUserOtp,
     userLogin,
+    userInfo,
     userProfileEdit,
     getAllDoctors,
     getAllPlans,
@@ -29,6 +30,7 @@ router.post('/signup', userSignup)
 router.post('/postOtp',postOtp)
 router.post('/user_resend_otp',resendUserOtp)
 router.post('/userLogin',userLogin)
+router.get('/userInfo',auth.userjwt,userInfo)
 router.post('/userProfileEdit',auth.userjwt,userProfileEdit)
 router.get('/allDoctors',getAllDoctors)
 router.get('/getAllPlans',getAllPlans)

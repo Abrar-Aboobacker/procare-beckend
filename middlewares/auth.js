@@ -11,7 +11,7 @@ const jwt = require("jsonwebtoken");
           // console.log(err);
           res
             .status(401)
-            .send({ message: "admin Auth Failed", success: false });
+            .send({ message: "user Auth Failed", success: false });
         } else {  
           req.userId = decoded.userId;
           next();
@@ -92,7 +92,6 @@ const jwt = require("jsonwebtoken");
       } else {
         jwt.verify(doctorwaitingtoken, process.env.JWT_SECRET_KEY, (err, decoded) => {
           if (err) {
-            console.log('hyyyyyyyyyyyyyyyyyyyyyyyyyy');
             console.log(err);
             res
               .status(401)

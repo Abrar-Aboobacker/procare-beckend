@@ -3,7 +3,8 @@ const Admin = require("../models/adminModel");
 const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcryptjs");
 const user = require("../models/userModel");
-const Plan = require("../models/planModel")
+const Plan = require("../models/planModel");
+const AppointmentModel = require("../models/AppointmentModel");
 module.exports = {
   adminLogin: async (req, res) => {
     try {
@@ -212,5 +213,29 @@ module.exports = {
    await plans.save()
    console.log(plans);
    res.status(200).send({message:"plan is created successfully",success:true,data:plans })
+  },
+ getAllAppointments: async (req, res) => {
+    try {
+
+      const appointments = await AppointmentModel.find()
+        .populate("client")
+        .populate("doctor")
+        .sort({ updatedAt: 1 })
+      if (!appointments) {
+        return res
+          .status(200)
+          .send({ message: "No Appointments exist ", success: false });
+      } else {
+        res.status(201).send({ appointments,
+          success: true });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getAllAppointments controller ${error.message}`,
+      });
+    }
   }
+  
 };

@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const moment = require("moment");
-const { log } = require("console");
+
 
 let signupData;
 module.exports = {
@@ -128,7 +128,7 @@ module.exports = {
       if (!userz) {
         return res
           .status(200)
-          .send({ message: "Doctor does not exist", success: false });
+          .send({ message: "user does not exist", success: false });
       } else {
         res.status(200).send({ success: true, data: userz });
       }

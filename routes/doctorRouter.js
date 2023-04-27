@@ -20,7 +20,10 @@ const {
     approveAppointment,
     cancelAppointment,
     completedAppointment,
-    getAppointmentHistory
+    getAppointmentHistory,
+    getAllNotification,
+    markAllNotification,
+    deleteNotification
 }= require('../controller/doctor-controller')
 
 router.post('/doctor_signup',doctorSignup)
@@ -41,4 +44,7 @@ router.post('/approveAppointment',auth.doctorjwt,approveAppointment)
 router.post ('/cancelAppointment',auth.doctorjwt,cancelAppointment)
 router.post ('/completedAppointment',auth.doctorjwt,completedAppointment)
 router.get('/getAppointmentHistory',auth.doctorjwt,getAppointmentHistory)
+router.get('/getAllNotification',auth.doctorjwt,getAllNotification)
+router.post('/markAllNotification',auth.doctorjwt,markAllNotification)
+router.post('/deleteNotification',auth.doctorjwt,deleteNotification)
 module.exports = router

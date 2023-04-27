@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const moment = require("moment");
+const { Console } = require("console");
 
 
 let signupData;
@@ -47,7 +48,7 @@ module.exports = {
   resendUserOtp: async (req, res, next) => {
     try {
       const { userNum } = req.body;
-      console.log(userNum);
+      // console.log(userNum);
       sendOtp(userNum);
     } catch (error) {
       console.log(error);
@@ -140,9 +141,9 @@ module.exports = {
   },
   userProfileEdit: async (req, res) => {
     try {
-      console.log(req.userId);
+      // console.log(req.userId);
       const information = req.body;
-      console.log(information);
+      // console.log(information);
       await user.updateOne(
         { _id: req.userId },
         {
@@ -249,7 +250,7 @@ module.exports = {
             .status(500)
             .send({ message: "something went wrong", success: false });
         } else {
-          console.log(order);
+          // console.log(order);
           res.status(200).send({ success: true, data: order });
         }
       });
@@ -307,7 +308,7 @@ module.exports = {
       doctorDetail.availability.forEach((day) => {
         if (day.status == "active") availableDays.push(day.day);
       });
-      console.log(availableDays);
+      // console.log(availableDays);
       if (doctorDetail) {
         res.status(200).send({
           success: true,
@@ -395,11 +396,14 @@ module.exports = {
     try {
       const userz = await user.findById({ _id: req.userId });
       const plan = userz.plan.isActive;
+      const session = userz.plan.session
       if (plan == false) {
         return res
           .status(200)
-          .send({ message: "Doctor does not exist", success: true });
-      } else {
+          .send({ message: "Please purchase a plan ", success: true });
+      }else if(session <=0) {
+        res.status(200).send({message:"Your plan is expired. Please purchase a plan",success:true})
+      }else {
         res.status(200).send({ success: false, data: userz });
       }
     } catch (error) {
@@ -434,6 +438,7 @@ module.exports = {
         }
         const availablity = doctors.availability[0];
         const times = availablity.time.find((t) => t._id == timeId);
+        console.log(times);
         if (!times) {
           res.status(200).send({
             message: "Time not available",
@@ -444,7 +449,7 @@ module.exports = {
 
         const totalSlots = times.slots;
         const toTime = moment(times.start).format(" h:mm a");
-
+        console.log(toTime);
         const allreadyBooked = await appointment.find({
           doctor: doctor,
           date: date,
@@ -489,7 +494,7 @@ module.exports = {
             const token = appointmentsCount + 1;
             const newAppointment = new appointment({
               date: date,
-              time: time,
+              time: toTime,
               doctor: doctor,
               token: token,
               client: client,
@@ -555,7 +560,7 @@ module.exports = {
   },
   changePassword: async (req, res) => {
     try {
-      console.log(req.body.values);
+      // console.log(req.body.values);
       const userr = await user.findOne({ _id: req.userId });
       const isMatch = await bcrypt.compare(
         req.body.values.currentPassword,

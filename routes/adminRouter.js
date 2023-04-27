@@ -5,6 +5,7 @@ const {
     adminLogin,
     adminInfo,
     getAllNotification,
+    markAllNotification,
     deleteNotification,
     getNewDoctors,
     getAllDoctors,
@@ -18,7 +19,8 @@ const {
 
 router.post('/admin_login',adminLogin)
 router.post('/adminInfo',auth.adminjwt,adminInfo)
-router.post('/getAllNotification',auth.adminjwt,getAllNotification)
+router.get('/getAllNotification',auth.adminjwt,getAllNotification)
+router.post('/markAllNotification',auth.adminjwt,markAllNotification)
 router.post('/deleteNotification',auth.adminjwt,deleteNotification)
 router.get('/getNewDoctors',auth.adminjwt,getNewDoctors)
 router.get('/getAllDoctors',auth.adminjwt,getAllDoctors)

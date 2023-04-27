@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const AppointmentModel = require("../models/AppointmentModel");
 const userModel = require("../models/userModel");
+const moment = require("moment");
 const nodeUser = process.env.nodeMailer_User;
 const nodePass = process.env.SMTP_key_value;
 const port = process.env.SMTP_PORT;
@@ -539,7 +540,7 @@ updateDotorAvailability:async (req, res) => {
         const notifications = client.notification;
         notifications.push({
           type: "cancelAppointment",
-          message: `${doctorr.name}  has canceled the ${appointment.date} ${appointment.time} booking `,
+          message: `${doctorr.name}  has canceled the ${moment(appointment.date).format("MMMM Do YYYY")} ${appointment.time} booking `,
         });
         console.log(notifications);
         await userModel.updateOne({_id:id},{
@@ -621,5 +622,67 @@ updateDotorAvailability:async (req, res) => {
         message: `getDoctorAppointmentHistory controller ${error.message}`,
       });
     }
-  }
+  },
+  getAllNotification:async(req,res)=>{
+    try {
+      const docotrr = await doctor.findOne({ _id: req.doctorId });
+      const doctorNotifications = docotrr.notification;
+      const doctorSeenNotification = docotrr.seennotification;
+      res
+        .status(200)
+        .send({success:true, doctorNotifications, doctorSeenNotification });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getAllNotifications  controller ${error.message}`,
+      });
+    }
+  },
+  markAllNotification: async (req, res) => {
+    try {
+      const doctorr = await doctor.findOne({ _id: req.doctorId });
+      const seennotification = doctorr.seennotification;
+      const notification = doctorr.notification;
+      seennotification.push(...notification);
+      doctorr.notification = [];
+      doctorr.seennotification = notification;
+
+      const updateDoctor = await doctor.updateOne(
+        { _id: req.doctorId },
+        { $set: { notification: [], seennotification: notification } }
+      );
+
+      res.status(200).send({
+        message: "all notifications marked as read",
+        success: true,
+        data: updateDoctor,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Error in notification",
+        success: false,
+        error,
+      });
+    }
+  },
+  deleteNotification: async (req, res) => {
+    try {
+      const updateDoctor = await doctor.updateOne(
+        { _id: req.doctorId },
+        { $set: { notification: [], seennotification: [] } }
+      );
+      res.status(200).send({
+        message: "all notifications are deleted successfully",
+        success: true,
+        data: updateDoctor,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "Error in notification", success: false, error });
+    }
+  },
 };

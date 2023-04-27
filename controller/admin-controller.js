@@ -66,8 +66,23 @@ module.exports = {
         .send({ message: "something went wrong", success: false, error });
     }
   },
-
-  getAllNotification: async (req, res) => {
+getAllNotification:async(req,res)=>{
+  try {
+    const adminz = await Admin.findOne({ _id: req.adminId });
+    const adminNotifications = adminz.notification;
+    const adminSeenNotification = adminz.seennotification;
+    res
+      .status(200)
+      .send({success:true, adminNotifications, adminSeenNotification });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `getAllNotifications  controller ${error.message}`,
+    });
+  }
+},
+  markAllNotification: async (req, res) => {
     try {
       const adminz = await Admin.findOne({ _id: req.body.adminId });
       const seennotification = adminz.seennotification;

@@ -22,7 +22,10 @@ const {
     getPendingAppointments,
     cancelAppointment,
     getAppointmentHistory,
-    userProfilePicUpload
+    userProfilePicUpload,
+    getAllNotification,
+    markAllNotification,
+    deleteNotification
 }=require('../controller/user-controller')
 const { handleUpload } = require('../middlewares/multer')
 
@@ -47,4 +50,7 @@ router.get("/getPendingAppointments",auth.userjwt,getPendingAppointments)
 router.post("/cancelAppointment",auth.userjwt,cancelAppointment)
 router.get("/getAppointmentHistory",auth.userjwt,getAppointmentHistory)
 router.post("/userProfilePicUpload",auth.userjwt,handleUpload('profile'),userProfilePicUpload)
+router.get("/getAllnotification",auth.userjwt,getAllNotification)
+router.post("/markAllNotification",auth.userjwt,markAllNotification)
+router.post("/deleteNotification",auth.userjwt,deleteNotification)
 module.exports = router

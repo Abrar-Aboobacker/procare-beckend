@@ -700,4 +700,66 @@ module.exports = {
       });
     }
   },
+  getAllNotification:async(req,res)=>{
+    try {
+      const userr = await user.findOne({ _id: req.userId });
+      const userNotification = userr.notification;
+      const userSeenNotification = userr.seennotification;
+      res
+        .status(200)
+        .send({success:true, userNotification, userSeenNotification });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `getAllNotifications  controller ${error.message}`,
+      });
+    }
+  },
+  markAllNotification: async (req, res) => {
+    try {
+      const userr = await user.findOne({ _id: req.userId });
+      const seennotification = userr.seennotification;
+      const notification = userr.notification;
+      seennotification.push(...notification);
+      userr.notification = [];
+      userr.seennotification = notification;
+
+      const updateUser = await user.updateOne(
+        { _id: req.userId },
+        { $set: { notification: [], seennotification: notification } }
+      );
+
+      res.status(200).send({
+        message: "all notifications marked as read",
+        success: true,
+        data: updateUser,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Error in notification",
+        success: false,
+        error,
+      });
+    }
+  },
+  deleteNotification: async (req, res) => {
+    try {
+      const updateUser = await user.updateOne(
+        { _id: req.userId },
+        { $set: { notification: [], seennotification: [] } }
+      );
+      res.status(200).send({
+        message: "all notifications are deleted successfully",
+        success: true,
+        data: updateUser,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "Error in notification", success: false, error });
+    }
+  },
 };

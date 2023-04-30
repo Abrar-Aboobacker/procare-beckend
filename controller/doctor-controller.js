@@ -685,4 +685,18 @@ updateDotorAvailability:async (req, res) => {
         .send({ message: "Error in notification", success: false, error });
     }
   },
+  getChatContacts:async(req,res)=>{
+    try {
+      const isActive = await AppointmentModel.find({ status: "active" }).distinct("client");
+      
+      if(isActive){
+        const users = await userModel.find({ _id: { $in: isActive } });
+        console.log(users,'jjhjhh');
+        res.status(200).send({message:"detials fetched successfully",data:users,success:"true"})
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
 };

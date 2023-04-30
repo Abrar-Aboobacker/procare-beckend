@@ -25,7 +25,8 @@ const {
     userProfilePicUpload,
     getAllNotification,
     markAllNotification,
-    deleteNotification
+    deleteNotification,
+    getChatContacts
 }=require('../controller/user-controller')
 const { handleUpload } = require('../middlewares/multer')
 
@@ -53,4 +54,5 @@ router.post("/userProfilePicUpload",auth.userjwt,handleUpload('profile'),userPro
 router.get("/getAllnotification",auth.userjwt,getAllNotification)
 router.post("/markAllNotification",auth.userjwt,markAllNotification)
 router.post("/deleteNotification",auth.userjwt,deleteNotification)
+router.get("/getChatContacts",auth.userjwt,getChatContacts)
 module.exports = router

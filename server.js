@@ -7,6 +7,7 @@ const dbConfig = require('./config/dbConfig');
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 const doctorRouter = require('./routes/doctorRouter')
+const messageRouter = require('./routes/messagesRouter')
 var bodyParser = require("body-parser");
 const app = express()
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(cors({
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 app.use('/doctor',doctorRouter)
+app.use('/message',messageRouter)
 
 app.use(express.static(__dirname + '/public'));
 

@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const moment = require("moment");
-const { Console } = require("console");
+const { Console, log } = require("console");
 
 
 let signupData;
@@ -413,8 +413,7 @@ module.exports = {
     }
   },
   verifyAppointment: async (req, res) => {
-    try {
-      console.log(req.body, "lklklklkklk");
+    try {;
       const { date, timeId, doctor, time } = req.body;
       const client = req.userId;
       const selectedDay = moment(date).format("dddd");
@@ -762,4 +761,17 @@ module.exports = {
         .send({ message: "Error in notification", success: false, error });
     }
   },
+  getChatContacts:async(req,res)=>{
+    try {
+      const isActive = await appointment.find({ status: "active" }).distinct("doctor");
+      // console.log(activeAppointments,'jjhjhh');
+      if(isActive){
+        const doctors = await Doctor.find({ _id: { $in: isActive } });
+        res.status(200).send({message:"detials fetched successfully",data:doctors,success:"true"})
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
 };

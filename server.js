@@ -9,6 +9,7 @@ const adminRouter = require('./routes/adminRouter')
 const doctorRouter = require('./routes/doctorRouter')
 const messageRouter = require('./routes/messagesRouter')
 var bodyParser = require("body-parser");
+const socket = require("socket.io")
 const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -27,4 +28,52 @@ app.use('/message',messageRouter)
 app.use(express.static(__dirname + '/public'));
 
 const port = process.env.PORT ||3001
-app.listen(port,()=>console.log('listening on port ' + port));
+const server = app.listen(port,()=>console.log('listening on port ' + port));
+
+// const io= socket(server,{
+//     cors:{
+//         origin: ['http://localhost:3000'],
+//         credentials:true,
+//     }
+// })
+
+// global.onlineUsers = new Map()
+
+// io.on("connection",(socket)=>{
+//     console.log('a user connected');
+//     global.chatSocket = socket
+//     socket.on("add-user",(userId)=>{
+//         onlineUsers.set(userId,socket.id)
+//     })
+// })
+
+// socket.on("send-msg",(data)=>{
+//     const sendUserSocket = onlineUsers.get(data.to)
+//     if(sendUserSocket){
+//         socket.to(sendUserSocket).emit("msg-recieve".data.msg)
+//     }
+// })
+
+const io = socket(server, {
+    cors: {
+        origin: ['http://localhost:3000'],
+        credentials: true,
+    }
+});
+
+const onlineUsers = new Map();
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('add-user', (userId) => {
+        onlineUsers.set(userId, socket.id);
+    });
+
+    socket.on('send-msg', (data) => {
+        console.log(data,"fffff");
+        const sendUserSocket = onlineUsers.get(data.to);
+        if (sendUserSocket) {
+            socket.to(sendUserSocket).emit('msg-recieve', data.message);
+        }
+    });
+});

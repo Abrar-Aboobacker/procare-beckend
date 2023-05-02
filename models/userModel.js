@@ -20,11 +20,16 @@ const userSchema = new mongoose.Schema(
     },
     dob:{
       type:Date,
-      required: true,
+      // required: true,
+    },
+    isActive:{
+      type:Boolean,
+      default:true
     },
     gender:{
       type:String,
-      required: true,
+      // required: true,
+      default:'',
     },
     password: {
       type: String,

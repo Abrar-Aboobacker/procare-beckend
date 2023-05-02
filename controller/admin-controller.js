@@ -146,7 +146,7 @@ getAllNotification:async(req,res)=>{
     try {
       // const {doctorId}=req.body
       const approveDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
-        $set:{isActive:"active"}
+        $set:{isActive:"Active"}
       })
       res.status(200).send({
         message: "doctor approved",
@@ -180,7 +180,7 @@ getAllNotification:async(req,res)=>{
   },
   getAllDoctors:async (req,res)=>{
     try {
-      const allDoctors = await Doctor.find({isActive:'active'})
+      const allDoctors = await Doctor.find({$or:[{isActive:'Active'},{isActive:'Blocked'}]})
       res.status(200).send({
         message: "doctor data",
         success: true,
@@ -189,6 +189,38 @@ getAllNotification:async(req,res)=>{
     }catch (error) {
       console.log(error)
       res.status(500).send({message:"Error while fetching doctor",success:false,error})
+    }
+  },
+  BlockingDoctor:async(req,res)=>{
+    try {
+      // const {doctorId}=req.body
+      const BlockDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
+        $set:{isActive:"Blocked"}
+      })
+      res.status(200).send({
+        message: "doctor Blocked",
+        success: true,
+        data: BlockDoctor,
+      });
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while Blocking doctor",success:false,error})
+    }
+  },
+  unBlockingDoctor:async(req,res)=>{
+    try {
+      // const {doctorId}=req.body
+      const unBlockDoctor = await Doctor.findOneAndUpdate({_id:req.body.doctorId},{
+        $set:{isActive:"Active"}
+      })
+      res.status(200).send({
+        message: "doctor is  unblocked",
+        success: true,
+        data: unBlockDoctor,
+      });
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while Blocking doctor",success:false,error})
     }
   },
   getAllUsers:async (req,res)=>{
@@ -202,6 +234,39 @@ getAllNotification:async(req,res)=>{
     }catch (error) {
       console.log(error)
       res.status(500).send({message:"Error while fetching User",success:false,error})
+    }
+  },
+  BlockingUser:async(req,res)=>{
+    try {
+      console.log(req.body);
+      // const {doctorId}=req.body
+      const blockUser = await user.findOneAndUpdate({_id:req.body.userId},{
+        $set:{isActive:false}
+      })
+      res.status(200).send({
+        message: "User is Blocked",
+        success: true,
+        data: blockUser,
+      });
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while Blocking doctor",success:false,error})
+    }
+  },
+  unBlockingUser:async(req,res)=>{
+    try {
+      // const {doctorId}=req.body
+      const unBlockUser = await user.findOneAndUpdate({_id:req.body.userId},{
+        $set:{isActive:true}
+      })
+      res.status(200).send({
+        message: "doctor is  unblocked",
+        success: true,
+        data: unBlockUser,
+      });
+    } catch (error) {
+      console.log(error)
+      res.status(500).send({message:"error while Blocking doctor",success:false,error})
     }
   },
   getAllPlans:async (req,res)=>{
@@ -251,6 +316,75 @@ getAllNotification:async(req,res)=>{
         message: `getAllAppointments controller ${error.message}`,
       });
     }
-  }
+  },
+  getAdminDashboardDetails:async (req, res) => {
+    try {
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
   
+      const totalPatients = await user.find().count();
+      const totalDoctors = await Doctor.find({
+        status: { $nin: ["pending", "rejected"] },
+      }).count();
+      const totalAppointments = await AppointmentModel.find().count();
+      const salesReport = await AppointmentModel.aggregate([
+        {
+          $match: {
+            status: "completed",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: { $month: "$createdAt" },
+              year: { $year: "$createdAt" },
+            },
+            totalSales: {
+              $sum: "$consultationFees",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id.month",
+            year: "$_id.year",
+            totalSales: 1,
+          },
+        },
+      ]);
+  
+      const newSalesReport = salesReport.map((el) => {
+        let newEl = { ...el };
+        newEl.month = months[newEl.month - 1];
+        return newEl;
+      });
+  
+      res.status(201).send({
+        totalPatients,
+        totalDoctors,
+        totalAppointments,
+        salesReport: newSalesReport,
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        success: false,
+        message: `editDepartment controller ${error.message}`,
+      });
+    }
+  }
 };

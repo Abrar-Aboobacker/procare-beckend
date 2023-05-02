@@ -13,8 +13,6 @@ const {
     planOrder,
     paymentVerify,
     singleDoctorDetails,
-    // bookAppointment,
-    // bookingAvailability,
     isPlanPresent,
     verifyAppointment,
     availableSlot,
@@ -41,8 +39,6 @@ router.get('/getAllPlans',getAllPlans)
 router.post('/planOrder',auth.userjwt,planOrder)
 router.post('/paymentVerify',auth.userjwt,paymentVerify)
 router.get('/singleDoctorDetails/:id',singleDoctorDetails)
-// router.post('/book_appointment',auth.userjwt,bookAppointment)
-// router.post('/booking_availabilily',auth.userjwt,bookingAvailability)
 router.get('/isPlanPresent',auth.userjwt,isPlanPresent)
 router.post('/verifyAppointment',auth.userjwt,verifyAppointment)
 router.get('/availableSlot/:id/:selectedDay',auth.userjwt,availableSlot)

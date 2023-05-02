@@ -39,6 +39,7 @@ module.exports = {
         });
       }
     } catch (err) {
+      console.log('hy');
       console.log(err);
       res
         .status(500)
@@ -49,7 +50,13 @@ module.exports = {
     try {
       const { userNum } = req.body;
       // console.log(userNum);
-      sendOtp(userNum);
+      if(userNum){
+        sendOtp(userNum);
+      }else{
+        res
+        .status(500)
+        .send({ message: "error while resending otp", success: false });
+      }
     } catch (error) {
       console.log(error);
       res
@@ -58,30 +65,36 @@ module.exports = {
     }
   },
   postOtp: async (req, res, next) => {
-    let { fName, lName, email, phone, cpassword } = signupData;
-    let { password } = signupData;
+    // let { fName, lName, email, phone, cpassword } = signupData;
+    // let { password } = signupData;
     const otp = req.body.values.otpis;
     try {
-      await verifyOtp(phone, otp).then(async (verification_check) => {
-        if (verification_check.status == "approved") {
-          password = await bcrypt.hash(signupData.password, 10);
-          cpassword = await bcrypt.hash(signupData.cpassword, 10);
-          let members = new user({
-            fName: fName,
-            lName: lName,
-            email: email,
-            phone: phone,
-            password: password,
-            cpassword: cpassword,
-          });
-          await members.save();
-          res
-            .status(200)
-            .send({ message: "user created successfully", success: true });
-        }
-      });
+      if(signupData?.phone){
+        await verifyOtp(signupData?.phone, otp).then(async (verification_check) => {
+          if (verification_check.status == "approved") {
+            signupData.password = await bcrypt.hash(signupData.password, 10);
+            signupData.cpassword = await bcrypt.hash(signupData.cpassword, 10);
+            let members = new user({
+              fName: signupData.fName,
+              lName: signupData.lName,
+              email: signupData.email,
+              phone: signupData.phone,
+              password: signupData.password,
+              cpassword: signupData.cpassword,
+            });
+            await members.save();
+            res
+              .status(200)
+              .send({ message: "user created successfully", success: true });
+          }
+        });
+      }else{
+        res.status(500).send({ message: "phone number is missing please signup once more", success: false });
+      }
+     
     } catch (error) {
-      console.log(error);
+     console.log(error);
+      next(error);
       res.status(500).send({ message: "error creating user", success: false });
     }
   },
@@ -171,22 +184,31 @@ module.exports = {
     }
   },
   userProfilePicUpload: async (req, res) => {
-    const path = req.file.path.replace("public", "");
+   
     try {
-      await user.updateOne(
-        { _id: req.userId },
-        {
-          $set: {
-            profile: path,
-          },
-        }
-      );
-      const userr = await user.findById({ _id: req.userId });
-      res.status(200).send({
-        success: true,
-        message: "Doctor Profile is edited",
-        data: userr,
-      });
+     
+      if(req?.file?.path){
+        const path = req.file.path.replace("public", "");
+        await user.updateOne(
+          { _id: req.userId },
+          {
+            $set: {
+              profile: path,
+            },
+          }
+        );
+        const userr = await user.findById({ _id: req.userId });
+        res.status(200).send({
+          success: true,
+          message: "Doctor Profile is edited",
+          data: userr,
+        });
+      }else{
+        res
+        .status(404)
+        .send({ message: "Please select a profile picture", success: false });
+      }
+    
     } catch (error) {
       console.log(error);
       res
@@ -196,7 +218,7 @@ module.exports = {
   },
   getAllDoctors: async (req, res) => {
     try {
-      const allDoctors = await Doctor.find({ isActive: "active" });
+      const allDoctors = await Doctor.find({ isActive: "Active" });
       allDoctors.forEach((doctor) => {
         doctor.password = undefined;
         doctor.cpassword = undefined;
@@ -329,69 +351,6 @@ module.exports = {
         .send({ success: false, message: "internal server error" });
     }
   },
-  // bookAppointment: async (req, res) => {
-  //   try {
-  //     req.body.status = "pending";
-  //     req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
-  //     req.body.time = moment(req.body.time, "HH:mm").toISOString();
-  //     const newAppointment = new appointment(req.body);
-  //     await newAppointment.save();
-  //     const doctorz = await Doctor.findOne({ _id: req.body.doctorId });
-  //     const notification = doctorz.notification;
-  //     notification.push({
-  //       type: "New appointment-request",
-  //       message: `New appointment request from ${
-  //         req.body.userInfo.fName + " " + req.body.userInfo.lName
-  //       }`,
-  //       onClickPath: "/user/appointment",
-  //     });
-  //     await Doctor.findByIdAndUpdate(doctorz._id, { notification });
-  //     res
-  //       .status(200)
-  //       .send({ success: true, message: "Appointment Book successfully" });
-  //   } catch (error) {
-  //     console.log(error);
-  //     res
-  //       .status(500)
-  //       .send({ success: false, message: "internal server error" });
-  //   }
-  // },
-  // bookingAvailability: async (req, res) => {
-  //   try {
-  //     console.log(req.body);
-  //     // const date = moment(req.body.date, 'DD-MM-YYYY').toISOString()
-  //     const date = req.body.date;
-  //     const time = req.body.time;
-  //     const doctorStart = req.body.doctorInfo.time.start;
-  //     const doctorEnd = req.body.doctorInfo.time.end;
-  //     // const fromTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
-  //     // const toTime = moment(req.body.time, 'HH:mm').subtract(1,'hours').toISOString()
-  //     const doctorId = req.body.doctorId;
-  //     console.log(doctorId);
-  //     const appointments = await appointment.find({ _id: doctorId });
-  //     console.log("ggggggg", appointments, "fffffffff");
-  //     console.log(appointments.length);
-  //     if (appointments.length > 0) {
-  //       console.log("hyyyy");
-  //       return res
-  //         .status(200)
-  //         .send({
-  //           message: "appointment not available at this time",
-  //           success: true,
-  //         });
-  //     } else {
-  //       console.log("iiii");
-  //       return res
-  //         .status(200)
-  //         .send({ message: "Appointment is available", success: true });
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     res
-  //       .status(500)
-  //       .send({ success: false, message: "internal server error" });
-  //   }
-  // },
   isPlanPresent: async (req, res) => {
     try {
       const userz = await user.findById({ _id: req.userId });

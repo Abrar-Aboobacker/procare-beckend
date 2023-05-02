@@ -61,7 +61,7 @@ module.exports = {
         })
         .catch((error) => {
             console.log(error);
-          throw error;
+          // throw error;
         });
         res.status(200).send({message:'Otp is send to given email address',success:true,doctorExist})
        
@@ -93,19 +93,19 @@ module.exports = {
     }
   },
   postDoctorOtp: async (req, res,next) => {
-    let { name,email,phone,password,cpassword,about,}=signupData
+    // let { name,email,phone,password,cpassword,about,}=signupData
     const {otpis} = req.body.values
     try {
         if(otpis == otp){
-            password = await bcrypt.hash(signupData.password,10)
-            cpassword = await bcrypt.hash(signupData.cpassword,10)
+            signupData.password = await bcrypt.hash(signupData?.password,10)
+            signupData.cpassword = await bcrypt.hash(signupData?.cpassword,10)
             let newDoctor= new doctor({
-                name:name,
-                email:email,
-                phone:phone,
-                password:password,
-                cpassword:cpassword,
-                about:about,
+                name:signupData.name,
+                email:signupData.email,
+                phone:signupData.phone,
+                password:signupData.password,
+                cpassword:signupData.cpassword,
+                about:signupData.about,
 
             })
             await newDoctor.save()
@@ -118,6 +118,9 @@ module.exports = {
           data: doctorwaitingtoken,
           newDoctor,
         });
+        }else{
+          console.log('here');
+          res.status(500).send({ message: "you entered wrong password", success: false });
         }
       
     } catch (error) {
@@ -296,24 +299,32 @@ module.exports = {
     }
   },
   doctorProfilePicUpload: async (req, res) => {
-    const path = req.file.path.replace("public", "");
+    
     try {
-     await doctor.updateOne(
-        { _id: req.doctorId },
-        {
-          $set: {
-            profile:path,
-          },
-        }
-      );
-      const doctorz = await doctor.findById({_id: req.doctorId})
-      res
-        .status(200)
-        .send({
-          success: true,
-          message: "Doctor Profile is edited",
-          data: doctorz,
-        });
+      if(req?.file?.path){
+        const path = req.file.path.replace("public", "");
+        await doctor.updateOne(
+          { _id: req.doctorId },
+          {
+            $set: {
+              profile:path,
+            },
+          }
+        );
+        const doctorz = await doctor.findById({_id: req.doctorId})
+        res
+          .status(200)
+          .send({
+            success: true,
+            message: "Doctor Profile is edited",
+            data: doctorz,
+          });
+      }else{
+        res
+        .status(404)
+        .send({ message: "Please select a profile picture", success: false });
+      }
+     
     } catch (error) {
       res
         .status(500)

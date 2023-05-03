@@ -4,7 +4,7 @@ const Doctor = require("../models/doctorModel");
 const bcrypt = require("bcryptjs");
 const user = require("../models/userModel");
 const Plan = require("../models/planModel");
-const AppointmentModel = require("../models/AppointmentModel");
+const AppointmentModel = require("../models/appointmentModel");
 module.exports = {
   adminLogin: async (req, res) => {
     try {

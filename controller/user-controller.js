@@ -1,7 +1,7 @@
 const user = require("../models/userModel");
 const Doctor = require("../models/doctorModel");
 const Plan = require("../models/planModel");
-const appointment = require("../models/AppointmentModel");
+const appointment = require("../models/appointmentModel");
 const bcrypt = require("bcryptjs");
 const { sendOtp, verifyOtp } = require("../middlewares/otp");
 const jwt = require("jsonwebtoken");

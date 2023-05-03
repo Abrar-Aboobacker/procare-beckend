@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json({limit: '300kb'}));
 app.use(cors({
-    origin: '*',
+    origin: ['*'],
     methods:["GET","POST"],
     credentials:true,
 }))

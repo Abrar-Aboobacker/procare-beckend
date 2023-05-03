@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json({limit: '300kb'}));
 app.use(cors({
-    origin: ['http://localhost:3000'],
+    origin: '*',
     methods:["GET","POST"],
     credentials:true,
 }))
@@ -56,7 +56,7 @@ const server = app.listen(port,()=>console.log('listening on port ' + port));
 
 const io = socket(server, {
     cors: {
-        origin: ['http://localhost:3000'],
+        origin:"*",
         credentials: true,
     }
 });

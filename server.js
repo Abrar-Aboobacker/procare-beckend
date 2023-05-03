@@ -27,6 +27,10 @@ app.use('/message',messageRouter)
 
 app.use(express.static(__dirname + '/public'));
 
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+  });
 const port = process.env.PORT ||3001
 const server = app.listen(port,()=>console.log('listening on port ' + port));
 

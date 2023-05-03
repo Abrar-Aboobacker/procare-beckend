@@ -39,7 +39,6 @@ module.exports = {
         });
       }
     } catch (err) {
-      console.log('hy');
       console.log(err);
       res
         .status(500)
@@ -49,7 +48,6 @@ module.exports = {
   resendUserOtp: async (req, res, next) => {
     try {
       const { userNum } = req.body;
-      // console.log(userNum);
       if(userNum){
         sendOtp(userNum);
       }else{
@@ -154,9 +152,7 @@ module.exports = {
   },
   userProfileEdit: async (req, res) => {
     try {
-      // console.log(req.userId);
       const information = req.body;
-      // console.log(information);
       await user.updateOne(
         { _id: req.userId },
         {
@@ -272,7 +268,6 @@ module.exports = {
             .status(500)
             .send({ message: "something went wrong", success: false });
         } else {
-          // console.log(order);
           res.status(200).send({ success: true, data: order });
         }
       });
@@ -330,7 +325,6 @@ module.exports = {
       doctorDetail.availability.forEach((day) => {
         if (day.status == "active") availableDays.push(day.day);
       });
-      // console.log(availableDays);
       if (doctorDetail) {
         res.status(200).send({
           success: true,
@@ -372,7 +366,7 @@ module.exports = {
     }
   },
   verifyAppointment: async (req, res) => {
-    try {;
+    try {
       const { date, timeId, doctor, time } = req.body;
       const client = req.userId;
       const selectedDay = moment(date).format("dddd");
@@ -396,7 +390,6 @@ module.exports = {
         }
         const availablity = doctors.availability[0];
         const times = availablity.time.find((t) => t._id == timeId);
-        console.log(times);
         if (!times) {
           res.status(200).send({
             message: "Time not available",
@@ -407,14 +400,12 @@ module.exports = {
 
         const totalSlots = times.slots;
         const toTime = moment(times.start).format(" h:mm a");
-        console.log(toTime);
         const allreadyBooked = await appointment.find({
           doctor: doctor,
           date: date,
           time: toTime,
           client: client,
         });
-        // console.log(allreadyBooked.length, "boooked");
         if (allreadyBooked.length !== 0) {
           res.status(200).send({
             message: "You have already booked this slot",
@@ -448,7 +439,6 @@ module.exports = {
                 },
               }
             );
-            console.log(userUpdate);
             const token = appointmentsCount + 1;
             const newAppointment = new appointment({
               date: date,
@@ -493,7 +483,6 @@ module.exports = {
   availableSlot: async (req, res) => {
     try {
       const { id, selectedDay } = req.params;
-      console.log(id, selectedDay);
       const doctorr = await Doctor.findById(id);
       const availability = doctorr.availability.find(
         (day) => day.day === selectedDay
@@ -518,7 +507,6 @@ module.exports = {
   },
   changePassword: async (req, res) => {
     try {
-      // console.log(req.body.values);
       const userr = await user.findOne({ _id: req.userId });
       const isMatch = await bcrypt.compare(
         req.body.values.currentPassword,
@@ -558,7 +546,6 @@ module.exports = {
         })
         .populate("doctor")
         .sort({ updatedAt: -1 });
-      console.log(pendingAppointments);
       if (pendingAppointments) {
         res.status(200).send({ pendingAppointments, success: true });
       } else {
@@ -576,7 +563,6 @@ module.exports = {
   },
   cancelAppointment: async (req, res) => {
     try {
-      console.log(req.body);
       const appointmentt = await appointment.findByIdAndUpdate(
         req.body.id,
         { status: "cancelled" },
@@ -595,27 +581,9 @@ module.exports = {
             },
           }
         );
-        // const doctorr = await Doctor.findById(appointmentt.doctor);
-
-        // const notifications = client.notification;
-        // notifications.push({
-        //   type: "cancelAppointment",
-        //   message: `${doctorr.name}  has canceled the ${appointmentt.date} ${appointmentt.time} booking `,
-        // });
-        // console.log(notifications);
-        // await userModel.updateOne({_id:id},{
-        //   $set: {notification:notifications}
-        // })
-        // // const newClient = await userModel.findByIdAndUpdate(
-        // //   appointment.client,
-        // //   {
-        // //     notifications,
-        // //   }
-        // // );
 
         res.status(201).send({
           message: ` Patient Booking cancelled`,
-          // count: newClient.notification.length,
           success: true,
         });
       } else {
@@ -723,7 +691,6 @@ module.exports = {
   getChatContacts:async(req,res)=>{
     try {
       const isActive = await appointment.find({ status: "active" }).distinct("doctor");
-      // console.log(activeAppointments,'jjhjhh');
       if(isActive){
         const doctors = await Doctor.find({ _id: { $in: isActive } });
         res.status(200).send({message:"detials fetched successfully",data:doctors,success:"true"})

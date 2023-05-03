@@ -24,7 +24,7 @@ function handleUpload(fieldname){
     upload.single(fieldname)(req,res,(err)=>{
       if(err){
         console.log(err);
-        return res.status(500).json({ messge: "Something gone wrong"});
+        return res.status(500).json({ message: "Something gone wrong"});
       }
       next()
     })

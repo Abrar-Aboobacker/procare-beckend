@@ -171,11 +171,12 @@ module.exports = {
   },
   doctorStatus: async (req, res) => {
     try {
+      
       const doctorStatus = await doctor.findById({ _id: req.doctorId });
       const IsActive = doctorStatus.isActive;
       doctorStatus.password = undefined;
       doctorStatus.cpassword = undefined;
-      if (IsActive == "active") {
+      if (IsActive == "Active") {
         res
           .status(200)
           .send({
@@ -193,6 +194,8 @@ module.exports = {
             data: IsActive,
             doctorStatus,
           });
+      }else{
+        
       }
     } catch (error) {
       console.log(error);

@@ -87,9 +87,12 @@ const jwt = require("jsonwebtoken");
     try {
       
       const doctorwaitingtoken = req.headers["authorization"]?.split(" ")[1];
+      
       if (!doctorwaitingtoken) {
+       
         res.send({ status: "failed", message: "You need token ok" });
       } else {
+        
         jwt.verify(doctorwaitingtoken, process.env.JWT_SECRET_KEY, (err, decoded) => {
           if (err) {
             console.log(err);
@@ -97,7 +100,6 @@ const jwt = require("jsonwebtoken");
               .status(401)
               .send({ message: "Doctor Auth Failed", success: false });
           } else {
-            
             req.doctorId = decoded.doctorwaitingId;
             next();
           }

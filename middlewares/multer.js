@@ -21,6 +21,7 @@ const upload = multer({ storage });
 
 function handleUpload(fieldname){
    return function (req,res,next) {
+    console.log(fieldname);
     upload.single(fieldname)(req,res,(err)=>{
       if(err){
         console.log(err);

@@ -205,6 +205,7 @@ module.exports = {
   doctorapply: async (req, res) => {
     try {
       const path = req.file.path.replace("public", "");
+      
       const information = req.body;
       // console.log(information);
       const updateDoctor = await doctor.updateOne(

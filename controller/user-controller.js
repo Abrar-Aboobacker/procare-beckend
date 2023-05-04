@@ -381,6 +381,7 @@ module.exports = {
           "availability.$": 1,
         }
       ).then(async (doctors) => {
+        console.log(doctors);
         if (!doctors) {
           res.status(200).send({
             message: "Doctor not found",

@@ -367,10 +367,11 @@ module.exports = {
   },
   verifyAppointment: async (req, res) => {
     try {
+      console.log(req.body)
       const { date, timeId, doctor, time } = req.body;
       const client = req.userId;
       const selectedDay = moment(date).format("dddd");
-
+      console.log(selectedDay);
       Doctor.findOne(
         {
           _id: doctor,

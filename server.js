@@ -66,7 +66,6 @@ const io = socket(server, {
 });
 
 const onlineUsers = new Map();
-
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('add-user', (userId) => {
@@ -74,7 +73,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('send-msg', (data) => {
-        console.log(data,"fffff");
         const sendUserSocket = onlineUsers.get(data.to);
         if (sendUserSocket) {
             socket.to(sendUserSocket).emit('msg-recieve', data.message);

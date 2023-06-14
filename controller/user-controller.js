@@ -302,7 +302,7 @@ module.exports = {
         );
         return res
           .status(200)
-          .send({ message: "payment verified successfully", success: true });
+          .send({ message: "You parchased a plan", success: true });
       } else {
         return res
           .status(400)

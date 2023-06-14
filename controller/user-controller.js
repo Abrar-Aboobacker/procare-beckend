@@ -196,7 +196,7 @@ module.exports = {
         const userr = await user.findById({ _id: req.userId });
         res.status(200).send({
           success: true,
-          message: "Doctor Profile is edited",
+          message: "User Profile picture is Added",
           data: userr,
         });
       }else{
